@@ -14,24 +14,11 @@ export class MiniDatabase {
         try {
             const ast = this.parser.parse(trimmed);
             const executor = new QueryExecutor(this.schema, this.storages);
-            const { steps, rows, columns, rowsAffected } = await executor.execute(ast);
-            return {
-                steps,
-                resultRows: rows as Row[],
-                resultColumns: columns,
-                rowsAffected,
-            };
+            const { steps, rows, columns, rowsAffected, pipelineStages } = await executor.execute(ast);
+            return { steps, resultRows: rows as Row[], resultColumns: columns, rowsAffected, pipelineStages };
         } catch (err) {
-            const message = err instanceof ParseError || err instanceof Error
-                ? err.message
-                : String(err);
-            return {
-                steps: [],
-                resultRows: [],
-                resultColumns: [],
-                rowsAffected: 0,
-                error: message,
-            };
+            const message = err instanceof ParseError || err instanceof Error ? err.message : String(err);
+            return { steps: [], resultRows: [], resultColumns: [], rowsAffected: 0, error: message };
         }
     }
 
