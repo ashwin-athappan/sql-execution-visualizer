@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useDbStore } from '@/store/dbStore';
 import { SchemaBrowser } from '@/components/schema/SchemaBrowser';
 import { BPlusTreeViz } from '@/components/visualization/BPlusTreeViz';
@@ -18,9 +18,14 @@ export default function Home() {
     resultRows, resultColumns, rowsAffected, error,
     schemaTables, focusedTable, isExecuting,
     pipelineStages, activeStageName, lastSQL,
+    isRestored,
     executeQuery, stepForward, stepBackward, play, pause, reset,
     setSpeed, setFocusedTable, setCurrentStepIndex,
+    initFromStorage, clearAll,
   } = useDbStore();
+
+  // Restore persisted DB state once on mount
+  useEffect(() => { initFromStorage(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [sql, setSql] = useState('');
   const [vizTab, setVizTab] = useState<'pipeline' | 'tree' | 'table'>('pipeline');
@@ -99,9 +104,25 @@ export default function Home() {
           </div>
         )}
 
-        {/* Stats footer */}
-        <div style={{ padding: '6px 12px', borderTop: '1px solid var(--border)', flexShrink: 0, fontSize: 10, color: 'var(--text-muted)' }}>
-          {schemaTables.length} tables · {schemaTables.reduce((a, t) => a + t.indexes.length, 0)} indexes
+        {/* Stats footer + Clear DB */}
+        <div style={{ padding: '6px 12px', borderTop: '1px solid var(--border)', flexShrink: 0, fontSize: 10, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span>
+            {isRestored ? '💾' : '⏳'}&nbsp;
+            {schemaTables.length} table{schemaTables.length !== 1 ? 's' : ''} · {schemaTables.reduce((a, t) => a + t.indexes.length, 0)} index{schemaTables.reduce((a, t) => a + t.indexes.length, 0) !== 1 ? 'es' : ''}
+          </span>
+          {schemaTables.length > 0 && (
+            <button
+              onClick={() => { if (confirm('Clear all tables and data? This cannot be undone.')) clearAll(); }}
+              style={{
+                background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
+                color: '#ef4444', borderRadius: 4, padding: '2px 7px',
+                fontSize: 9, fontWeight: 600, cursor: 'pointer', letterSpacing: '0.04em',
+              }}
+              title="Clear all tables from storage"
+            >
+              Clear DB
+            </button>
+          )}
         </div>
       </div>
 

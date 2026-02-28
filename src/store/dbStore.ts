@@ -29,6 +29,9 @@ interface DbStore {
     schemaTables: TableDef[];
     focusedTable: string | null;
 
+    // Persistence
+    isRestored: boolean;   // true once the initial localStorage load has completed
+
     // Actions
     executeQuery: (sql: string) => Promise<void>;
     stepForward: () => void;
@@ -40,6 +43,8 @@ interface DbStore {
     setFocusedTable: (name: string | null) => void;
     setCurrentStepIndex: (idx: number) => void;
     refreshSchema: () => void;
+    initFromStorage: () => Promise<void>;
+    clearAll: () => void;
 }
 
 let playInterval: ReturnType<typeof setInterval> | null = null;
@@ -64,7 +69,9 @@ export const useDbStore = create<DbStore>((set, get) => ({
     error: null,
     schemaTables: [],
     focusedTable: null,
+    isRestored: false,
 
+    // ── Schema helper ─────────────────────────────────────────────────────────
     refreshSchema: () => {
         const { db } = get();
         const tables: TableDef[] = db.getSchema().listTables();
@@ -72,7 +79,41 @@ export const useDbStore = create<DbStore>((set, get) => ({
         if (!get().focusedTable && tables.length > 0) set({ focusedTable: tables[0].name });
     },
 
+    // ── Load persisted DB state on first mount ────────────────────────────────
+    initFromStorage: async () => {
+        const { db } = get();
+        const restored = await db.load();
+        set({ isRestored: true });
+        if (restored) {
+            get().refreshSchema();
+        }
+    },
+
+    // ── Wipe everything (schema + rows + localStorage) ────────────────────────
+    clearAll: () => {
+        const { db } = get();
+        db.clear();                        // wipe localStorage
+        // Replace the db instance with a fresh one
+        const freshDb = new MiniDatabase();
+        set({
+            db: freshDb,
+            schemaTables: [],
+            focusedTable: null,
+            steps: [],
+            currentStepIndex: -1,
+            pipelineStages: [],
+            activeStageName: undefined,
+            resultRows: [],
+            resultColumns: [],
+            rowsAffected: 0,
+            error: null,
+            lastSQL: '',
+        });
+    },
+
+    // ── Navigation helpers ────────────────────────────────────────────────────
     setFocusedTable: (name) => set({ focusedTable: name }),
+
     setCurrentStepIndex: (idx) => {
         const { steps } = get();
         const step = steps[idx];
@@ -83,17 +124,32 @@ export const useDbStore = create<DbStore>((set, get) => ({
         });
     },
 
+    // ── Execute SQL ───────────────────────────────────────────────────────────
     executeQuery: async (sql: string) => {
         stopPlayback();
-        set({ isExecuting: true, error: null, steps: [], currentStepIndex: -1, pipelineStages: [], activeStageName: undefined, resultRows: [], resultColumns: [], rowsAffected: 0, lastSQL: sql });
+        set({
+            isExecuting: true, error: null,
+            steps: [], currentStepIndex: -1,
+            pipelineStages: [], activeStageName: undefined,
+            resultRows: [], resultColumns: [], rowsAffected: 0,
+            lastSQL: sql,
+        });
+
         const { db } = get();
         const result = await db.executeScript(sql);
+
+        // Persist after every successful mutation so state survives refresh
+        if (!result.error) {
+            db.save();
+        }
+
         get().refreshSchema();
+
         if (result.error) {
             set({ error: result.error, isExecuting: false });
             return;
         }
-        // Find focused table from result or keep current
+
         let focused = get().focusedTable;
         if (!focused && get().schemaTables.length > 0) focused = get().schemaTables[0].name;
 
@@ -110,26 +166,24 @@ export const useDbStore = create<DbStore>((set, get) => ({
         });
     },
 
+    // ── Playback controls ─────────────────────────────────────────────────────
     stepForward: () => {
         const { steps, currentStepIndex } = get();
-        const next = Math.min(currentStepIndex + 1, steps.length - 1);
-        get().setCurrentStepIndex(next);
+        get().setCurrentStepIndex(Math.min(currentStepIndex + 1, steps.length - 1));
     },
 
     stepBackward: () => {
-        const { currentStepIndex } = get();
-        get().setCurrentStepIndex(Math.max(currentStepIndex - 1, 0));
+        get().setCurrentStepIndex(Math.max(get().currentStepIndex - 1, 0));
     },
 
     play: () => {
-        const { speed } = get();
         stopPlayback();
         set({ isPlaying: true });
         playInterval = setInterval(() => {
             const { steps, currentStepIndex, pause } = get();
             if (currentStepIndex >= steps.length - 1) { pause(); return; }
             get().stepForward();
-        }, speed);
+        }, get().speed);
     },
 
     pause: () => {
@@ -144,8 +198,7 @@ export const useDbStore = create<DbStore>((set, get) => ({
     },
 
     setSpeed: (ms: number) => {
-        const { isPlaying } = get();
         set({ speed: ms });
-        if (isPlaying) { get().pause(); get().play(); }
+        if (get().isPlaying) { get().pause(); get().play(); }
     },
 }));

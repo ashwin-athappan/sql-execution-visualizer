@@ -3,6 +3,7 @@ import { TableStorage } from './storage';
 import { QueryExecutor } from './executor';
 import { SQLParser, ParseError } from './sql/parser';
 import { ExecutionResult, Row } from './types';
+import { saveDatabase, loadDatabase, clearDatabase } from './persistence';
 
 export class MiniDatabase {
     private schema: SchemaManager = new SchemaManager();
@@ -87,4 +88,13 @@ export class MiniDatabase {
 
     getSchema() { return this.schema; }
     getStorages() { return this.storages; }
+
+    /** Persist the current DB state to localStorage. */
+    save(): void { saveDatabase(this.schema, this.storages); }
+
+    /** Hydrate schema + row data from localStorage. Returns true if data was restored. */
+    load(): Promise<boolean> { return loadDatabase(this.schema, this.storages); }
+
+    /** Wipe the persisted snapshot from localStorage. */
+    clear(): void { clearDatabase(); }
 }
