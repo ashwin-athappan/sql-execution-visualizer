@@ -28,3 +28,13 @@ export function lowerBound(arr: BTreeKey[], key: BTreeKey): number {
     }
     return lo;
 }
+
+/**
+ * Return the index of the child to follow when searching or inserting key
+ * into an internal node. Equivalent to "first i where keys[i] > key".
+ */
+export function findChildIndex(keys: BTreeKey[], key: BTreeKey): number {
+    let i = 0;
+    while (i < keys.length && key >= keys[i]) i++;
+    return i;
+}
