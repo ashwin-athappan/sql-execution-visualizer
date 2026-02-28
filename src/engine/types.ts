@@ -50,9 +50,16 @@ export interface PipelineStage {
   name: StageName;
   clauseText: string;           // the SQL fragment e.g. "age > 27"
   rowCount: number;
-  sampleRows: Row[];            // up to 8 representative rows
+  sampleRows: Row[];            // all rows for this stage
   columns: string[];
   active?: boolean;             // is this the currently executing stage?
+  // For JOIN stages: individual table data shown side by side
+  leftTableName?: string;
+  leftRows?: Row[];
+  leftColumns?: string[];
+  rightTableName?: string;
+  rightRows?: Row[];
+  rightColumns?: string[];
 }
 
 // ─── Execution Step Types ────────────────────────────────────────────────────

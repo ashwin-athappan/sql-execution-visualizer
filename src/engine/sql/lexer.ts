@@ -14,8 +14,11 @@ const KEYWORDS = new Set([
     'INDEX', 'ON', 'UNIQUE', 'PRIMARY', 'KEY', 'NOT', 'NULL', 'DEFAULT',
     'AND', 'OR', 'LIKE', 'IS', 'IN', 'ORDER', 'BY', 'ASC', 'DESC',
     'LIMIT', 'JOIN', 'INNER', 'LEFT', 'RIGHT', 'OUTER', 'FULL', 'CROSS',
-    'INT', 'INTEGER', 'TEXT', 'VARCHAR', 'FLOAT', 'REAL', 'BOOLEAN', 'BOOL',
+    'INT', 'INTEGER', 'TEXT', 'VARCHAR', 'FLOAT', 'REAL', 'DOUBLE',
+    'NUMERIC', 'DECIMAL', 'BOOLEAN', 'BOOL',
     'IF', 'EXISTS', 'RENAME', 'TO', 'CONSTRAINT', 'REFERENCES',
+    'AS', 'DISTINCT', 'GROUP', 'HAVING',
+    'COUNT', 'SUM', 'AVG', 'MIN', 'MAX',
 ]);
 
 export function tokenize(sql: string): Token[] {

@@ -30,7 +30,33 @@ function aggKey(agg: AggregateExpr): string {
 }
 
 function makePipelineStage(name: StageName, clauseText: string, rows: Row[], allCols: string[]): PipelineStage {
-    return { name, clauseText, rowCount: rows.length, sampleRows: rows.slice(0, 20), columns: allCols };
+    return { name, clauseText, rowCount: rows.length, sampleRows: rows, columns: allCols };
+}
+
+function makeJoinPipelineStage(
+    clauseText: string,
+    joinedRows: Row[],
+    joinCols: string[],
+    leftTableName: string,
+    leftRows: Row[],
+    leftColumns: string[],
+    rightTableName: string,
+    rightRows: Row[],
+    rightColumns: string[],
+): PipelineStage {
+    return {
+        name: 'JOIN',
+        clauseText,
+        rowCount: joinedRows.length,
+        sampleRows: joinedRows,
+        columns: joinCols,
+        leftTableName,
+        leftRows,
+        leftColumns,
+        rightTableName,
+        rightRows,
+        rightColumns,
+    };
 }
 
 // Resolve qualified col refs like "t.col" → "col" using alias mapping
@@ -246,7 +272,21 @@ export class QueryExecutor {
                 }
                 rows = joined;
                 const joinCols = [...fromCols, ...rightDef.columns.map(c => c.name)];
-                this.pipelineStages.push(makePipelineStage('JOIN', `${join.type} JOIN ${join.table}${join.alias ? ' ' + join.alias : ''} ON ...`, rows, joinCols));
+                // Capture left rows (before join) from current `rows` snapshot
+                const leftRowsSnapshot = storage.scanAll();
+                const leftColsSnapshot = tableDef.columns.map(c => c.name);
+                const rightColsSnapshot = rightDef.columns.map(c => c.name);
+                this.pipelineStages.push(makeJoinPipelineStage(
+                    `${join.type} JOIN ${join.table}${join.alias ? ' ' + join.alias : ''} ON ...`,
+                    rows,
+                    joinCols,
+                    ast.from,
+                    leftRowsSnapshot,
+                    leftColsSnapshot,
+                    join.table,
+                    rightRows,
+                    rightColsSnapshot,
+                ));
                 emit({ type: 'TABLE_SCAN', description: `${join.type} JOIN '${join.table}': ${rows.length} rows after join`, tableName: join.table, activeStageName: 'JOIN' });
             }
         }

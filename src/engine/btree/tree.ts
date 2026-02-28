@@ -82,6 +82,7 @@ export class BPlusTree {
             curr = this.getNode(curr.children![i]);
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const results: { key: BTreeKey; value: any }[] = [];
         // Walk the leaf chain
         let leaf: BPlusTreeNode | null = curr;
@@ -168,6 +169,7 @@ export class BPlusTree {
     // ── Scan All ─────────────────────────────────────────────────────────────────
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     scanAll(): { key: BTreeKey; value: any }[] {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const results: { key: BTreeKey; value: any }[] = [];
         // find leftmost leaf
         let curr = this.getNode(this.rootId);
@@ -230,7 +232,7 @@ export class BPlusTree {
 
         sibling.keys = node.keys.splice(mid + 1);
         sibling.children = node.children!.splice(mid + 1);
-        node.keys.splice(mid, 1); // remove mid key (it goes up)
+        node.keys.splice(mid, 1); // remove mid-key (it goes up)
 
         sibling.children.forEach(cid => { this.getNode(cid).parentId = sibling.id; });
         await this.insertInParent(node, pushUpKey, sibling, path, hooks);

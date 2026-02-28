@@ -87,7 +87,7 @@ export const useDbStore = create<DbStore>((set, get) => ({
         stopPlayback();
         set({ isExecuting: true, error: null, steps: [], currentStepIndex: -1, pipelineStages: [], activeStageName: undefined, resultRows: [], resultColumns: [], rowsAffected: 0, lastSQL: sql });
         const { db } = get();
-        const result = await db.execute(sql);
+        const result = await db.executeScript(sql);
         get().refreshSchema();
         if (result.error) {
             set({ error: result.error, isExecuting: false });
