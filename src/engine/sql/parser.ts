@@ -98,7 +98,8 @@ export class SQLParser {
             this.advance();
             this.eatKeyword('BY');
             groupBy = [];
-            do { groupBy.push(this.parseIdentifier()); } while (this.check('COMMA') && this.advance() !== undefined);
+            // Use parseQualifiedIdentifier so that table-qualified refs like u.name are captured in full
+            do { groupBy.push(this.parseQualifiedIdentifier()); } while (this.check('COMMA') && this.advance() !== undefined);
         }
 
         let having: WhereClause | undefined;
@@ -115,7 +116,8 @@ export class SQLParser {
                     const expr = this.parseAggregate();
                     col = `${expr.fn}(${expr.col})`;
                 } else {
-                    col = this.parseIdentifier();
+                    // Use parseQualifiedIdentifier so ORDER BY table.col refs work
+                    col = this.parseQualifiedIdentifier();
                 }
                 let dir: 'ASC' | 'DESC' = 'ASC';
                 if (this.peekKeyword('ASC')) { this.advance(); }

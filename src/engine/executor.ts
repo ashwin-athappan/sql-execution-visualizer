@@ -114,15 +114,17 @@ export class QueryExecutor {
     private execCreateTable(ast: CreateTableStmt, emit: StepEmitter): void {
         emit({ type: 'PLAN', description: `Planning CREATE TABLE ${ast.table}` });
         const def = this.schema.createTable(ast.table, ast.columns);
-        this.storages.set(ast.table, new TableStorage(ast.table, def.primaryKey, 4));
-        emit({ type: 'SCHEMA_CREATE', description: `Created table '${ast.table}' with ${ast.columns.length} column(s). PK: '${def.primaryKey}'.`, tableName: ast.table, treeSnapshot: this.storages.get(ast.table)!.getPrimaryTreeSnapshot() });
+        // Use the normalized name from the schema definition as the storage key
+        this.storages.set(def.name, new TableStorage(def.name, def.primaryKey, 4));
+        emit({ type: 'SCHEMA_CREATE', description: `Created table '${def.name}' with ${ast.columns.length} column(s). PK: '${def.primaryKey}'.`, tableName: def.name, treeSnapshot: this.storages.get(def.name)!.getPrimaryTreeSnapshot() });
     }
 
     private execDropTable(ast: DropTableStmt, emit: StepEmitter): void {
         emit({ type: 'PLAN', description: `Planning DROP TABLE ${ast.table}` });
-        this.schema.dropTable(ast.table, ast.ifExists);
-        this.storages.delete(ast.table);
-        emit({ type: 'SCHEMA_DROP', description: `Dropped table '${ast.table}'.`, tableName: ast.table });
+        const normName = ast.table.toLowerCase();
+        this.schema.dropTable(normName, ast.ifExists);
+        this.storages.delete(normName);
+        emit({ type: 'SCHEMA_DROP', description: `Dropped table '${normName}'.`, tableName: normName });
     }
 
     private execAlterTable(ast: AlterTableStmt, emit: StepEmitter): void {
@@ -357,15 +359,18 @@ export class QueryExecutor {
         if (ast.orderBy && ast.orderBy.length > 0) {
             rows = [...rows].sort((a, b) => {
                 for (const o of ast.orderBy!) {
-                    const aVal = a[o.column];
-                    const bVal = b[o.column];
+                    // Resolve table-qualified refs (e.g. u.name → name) before lookup;
+                    // after GROUP BY the rows only contain bare column names.
+                    const col = resolveCol(o.column, aliasMap);
+                    const aVal = a[col] ?? a[o.column];
+                    const bVal = b[col] ?? b[o.column];
                     const cmp = aVal == null ? -1 : bVal == null ? 1 : aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
                     if (cmp !== 0) return o.direction === 'ASC' ? cmp : -cmp;
                 }
                 return 0;
             });
-            this.pipelineStages.push(makePipelineStage('ORDER BY', `ORDER BY ${ast.orderBy.map(o => `${o.column} ${o.direction}`).join(', ')}`, rows, outputCols));
-            emit({ type: 'SORT', description: `Sorted by ${ast.orderBy.map(o => `${o.column} ${o.direction}`).join(', ')}`, tableName: ast.from, activeStageName: 'ORDER BY' });
+            this.pipelineStages.push(makePipelineStage('ORDER BY', `ORDER BY ${ast.orderBy.map(o => `${resolveCol(o.column, aliasMap)} ${o.direction}`).join(', ')}`, rows, outputCols));
+            emit({ type: 'SORT', description: `Sorted by ${ast.orderBy.map(o => `${resolveCol(o.column, aliasMap)} ${o.direction}`).join(', ')}`, tableName: ast.from, activeStageName: 'ORDER BY' });
         }
 
         // ── STAGE 7: LIMIT ───────────────────────────────────────────────────
@@ -382,7 +387,9 @@ export class QueryExecutor {
         } else {
             finalCols = (ast.columns as SelectColumn[]).map(c => {
                 if (c.kind === 'aggregate') return aggKey(c);
-                if (c.kind === 'column') return c.alias ?? c.name;
+                // Strip table alias qualifier (u.name → name) when no explicit alias given,
+                // matching standard SQL output behaviour.
+                if (c.kind === 'column') return c.alias ?? resolveCol(c.name, aliasMap);
                 return '*';
             }).filter(c => c !== '*');
         }
@@ -394,7 +401,8 @@ export class QueryExecutor {
                 if (c.kind === 'aggregate') { const k = aggKey(c); out[k] = r[k]; }
                 else if (c.kind === 'column') {
                     const resolved = resolveCol(c.name, aliasMap);
-                    const key = c.alias ?? c.name;
+                    // Use alias if provided, otherwise the resolved (bare) column name
+                    const key = c.alias ?? resolved;
                     out[key] = r[resolved] ?? r[c.name] ?? null;
                 }
             });
@@ -416,9 +424,14 @@ export class QueryExecutor {
         switch (expr.kind) {
             case 'literal': return expr.value;
             case 'column_ref': {
-                // Try table.col, then bare col
+                // Try table.col (qualified), then bare col, then case-insensitive fallback
                 const qualified = expr.table ? `${expr.table}.${expr.column}` : expr.column;
-                return row[qualified] ?? row[expr.column] ?? null;
+                const colLower = expr.column.toLowerCase();
+                if (qualified in row) return row[qualified];
+                if (expr.column in row) return row[expr.column];
+                // case-insensitive scan
+                const key = Object.keys(row).find(k => k.toLowerCase() === colLower || k.toLowerCase() === qualified.toLowerCase());
+                return key !== undefined ? row[key] : null;
             }
             case 'aggregate': {
                 // In HAVING/ORDER BY, the aggregate result is already in the row
@@ -475,8 +488,9 @@ export class QueryExecutor {
     }
 
     private getStorage(tableName: string): TableStorage {
-        const s = this.storages.get(tableName);
-        if (!s) throw new Error(`No storage for table '${tableName}'`);
+        const normName = tableName.toLowerCase();
+        const s = this.storages.get(normName);
+        if (!s) throw new Error(`No storage for table '${normName}'`);
         return s;
     }
 

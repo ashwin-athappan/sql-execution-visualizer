@@ -64,7 +64,9 @@ export function tokenize(sql: string): Token[] {
             let word = '';
             while (i < sql.length && /[\w]/.test(sql[i])) word += sql[i++];
             const upper = word.toUpperCase();
-            tokens.push({ type: KEYWORDS.has(upper) ? 'KEYWORD' : 'IDENTIFIER', value: upper === word ? upper : word, pos: start });
+            // Keywords stay uppercase; identifiers (table/column names) are lowercased
+            // so that all name comparisons throughout the engine are case-insensitive.
+            tokens.push({ type: KEYWORDS.has(upper) ? 'KEYWORD' : 'IDENTIFIER', value: KEYWORDS.has(upper) ? upper : word.toLowerCase(), pos: start });
             continue;
         }
 

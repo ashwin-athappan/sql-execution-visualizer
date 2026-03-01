@@ -56,7 +56,7 @@ function DataTable({ rows, columns, accentColor, title, subtitle }: {
 }) {
     if (columns.length === 0 && rows.length === 0) return null;
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1, minHeight: 0 }}>
             {title && (
                 <div style={{
                     padding: '5px 10px',

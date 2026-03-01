@@ -6,21 +6,28 @@ export class SchemaError extends Error { }
 export class SchemaManager {
     private tables: Map<string, TableDef> = new Map();
 
+    /** Normalize any identifier to lowercase for case-insensitive comparisons. */
+    private norm(name: string): string { return name.toLowerCase(); }
+
     // ── Tables ────────────────────────────────────────────────────────────────
     createTable(name: string, columns: ColumnDefAST[]): TableDef {
-        if (this.tables.has(name)) throw new SchemaError(`Table '${name}' already exists`);
+        const normName = this.norm(name);
+        if (this.tables.has(normName)) throw new SchemaError(`Table '${normName}' already exists`);
+
+        // Normalize column names
+        const normCols = columns.map(c => ({ ...c, name: this.norm(c.name) }));
 
         // Find primary key column
-        let pk = columns.find(c => c.primaryKey)?.name;
+        let pk = normCols.find(c => c.primaryKey)?.name;
         if (!pk) {
             // Default: first INT column, or first column
-            pk = columns.find(c => c.type === 'INT')?.name ?? columns[0]?.name;
-            if (!pk) throw new SchemaError(`Table '${name}' must have at least one column`);
+            pk = normCols.find(c => c.type === 'INT')?.name ?? normCols[0]?.name;
+            if (!pk) throw new SchemaError(`Table '${normName}' must have at least one column`);
         }
 
         const def: TableDef = {
-            name,
-            columns: columns.map(c => ({
+            name: normName,
+            columns: normCols.map(c => ({
                 name: c.name,
                 type: c.type as SqlType,
                 primaryKey: c.primaryKey,
@@ -29,21 +36,23 @@ export class SchemaManager {
             primaryKey: pk,
             indexes: [],
         };
-        this.tables.set(name, def);
+        this.tables.set(normName, def);
         return def;
     }
 
     dropTable(name: string, ifExists = false): void {
-        if (!this.tables.has(name)) {
+        const normName = this.norm(name);
+        if (!this.tables.has(normName)) {
             if (ifExists) return;
-            throw new SchemaError(`Table '${name}' does not exist`);
+            throw new SchemaError(`Table '${normName}' does not exist`);
         }
-        this.tables.delete(name);
+        this.tables.delete(normName);
     }
 
     getTable(name: string): TableDef {
-        const t = this.tables.get(name);
-        if (!t) throw new SchemaError(`Table '${name}' does not exist`);
+        const normName = this.norm(name);
+        const t = this.tables.get(normName);
+        if (!t) throw new SchemaError(`Table '${normName}' does not exist`);
         return t;
     }
 
@@ -52,54 +61,60 @@ export class SchemaManager {
     }
 
     hasTable(name: string): boolean {
-        return this.tables.has(name);
+        return this.tables.has(this.norm(name));
     }
 
     // ── Alter ─────────────────────────────────────────────────────────────────
     addColumn(tableName: string, col: ColumnDefAST): void {
         const t = this.getTable(tableName);
-        if (t.columns.find(c => c.name === col.name)) {
-            throw new SchemaError(`Column '${col.name}' already exists in '${tableName}'`);
+        const normColName = this.norm(col.name);
+        if (t.columns.find(c => c.name === normColName)) {
+            throw new SchemaError(`Column '${normColName}' already exists in '${t.name}'`);
         }
-        t.columns.push({ name: col.name, type: col.type as SqlType, primaryKey: false, nullable: col.nullable });
+        t.columns.push({ name: normColName, type: col.type as SqlType, primaryKey: false, nullable: col.nullable });
     }
 
     dropColumn(tableName: string, colName: string): void {
         const t = this.getTable(tableName);
-        const idx = t.columns.findIndex(c => c.name === colName);
-        if (idx === -1) throw new SchemaError(`Column '${colName}' not found in '${tableName}'`);
-        if (t.primaryKey === colName) throw new SchemaError(`Cannot drop primary key column`);
+        const normColName = this.norm(colName);
+        const idx = t.columns.findIndex(c => c.name === normColName);
+        if (idx === -1) throw new SchemaError(`Column '${normColName}' not found in '${t.name}'`);
+        if (t.primaryKey === normColName) throw new SchemaError(`Cannot drop primary key column`);
         t.columns.splice(idx, 1);
     }
 
     renameColumn(tableName: string, from: string, to: string): void {
         const t = this.getTable(tableName);
-        const col = t.columns.find(c => c.name === from);
-        if (!col) throw new SchemaError(`Column '${from}' not found in '${tableName}'`);
-        if (t.primaryKey === from) t.primaryKey = to;
-        col.name = to;
+        const normFrom = this.norm(from);
+        const normTo = this.norm(to);
+        const col = t.columns.find(c => c.name === normFrom);
+        if (!col) throw new SchemaError(`Column '${normFrom}' not found in '${t.name}'`);
+        if (t.primaryKey === normFrom) t.primaryKey = normTo;
+        col.name = normTo;
     }
 
     // ── Indexes ───────────────────────────────────────────────────────────────
     createIndex(def: Omit<IndexDef, 'tableName'> & { tableName: string }): IndexDef {
         const t = this.getTable(def.tableName);
-        if (t.indexes.find(i => i.name === def.name)) {
-            throw new SchemaError(`Index '${def.name}' already exists`);
+        const normIndexName = this.norm(def.name);
+        if (t.indexes.find(i => i.name === normIndexName)) {
+            throw new SchemaError(`Index '${normIndexName}' already exists`);
         }
-        const idx: IndexDef = { ...def };
+        const idx: IndexDef = { ...def, name: normIndexName, tableName: t.name, columns: def.columns.map(c => this.norm(c)) };
         t.indexes.push(idx);
         return idx;
     }
 
     dropIndex(indexName: string): { tableName: string } {
+        const normIndexName = this.norm(indexName);
         for (const t of this.tables.values()) {
-            const idx = t.indexes.findIndex(i => i.name === indexName);
+            const idx = t.indexes.findIndex(i => i.name === normIndexName);
             if (idx !== -1) {
                 t.indexes.splice(idx, 1);
                 return { tableName: t.name };
             }
         }
-        throw new SchemaError(`Index '${indexName}' does not exist`);
+        throw new SchemaError(`Index '${normIndexName}' does not exist`);
     }
 
     // ── Validation ────────────────────────────────────────────────────────────

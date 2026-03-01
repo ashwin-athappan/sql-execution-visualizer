@@ -106,19 +106,57 @@ function getCompletions(text: string, cursorPos: number, schema: TableDef[]): st
     return completions.slice(0, 12);
 }
 
-const SAMPLE_QUERIES = [
-    'CREATE TABLE users (id INT PRIMARY KEY, name TEXT, age INT NOT NULL)',
-    'CREATE TABLE orders (id INT PRIMARY KEY, user_id INT, amount FLOAT, status TEXT)',
-    "INSERT INTO users VALUES (1, 'Alice', 30)",
-    "INSERT INTO orders VALUES (1, 1, 150.00, 'paid')",
-    'SELECT * FROM users WHERE age > 27 ORDER BY age ASC',
-    'SELECT u.name, SUM(o.amount) AS total FROM orders o JOIN users u ON o.user_id = u.id GROUP BY u.name',
-    'SELECT status, COUNT(*) AS count, AVG(amount) AS avg_amount FROM orders GROUP BY status HAVING COUNT(*) > 1',
-    'UPDATE users SET age = 31 WHERE id = 1',
-    'DELETE FROM orders WHERE status = \'pending\'',
-    'ALTER TABLE users ADD COLUMN email TEXT',
-    'DROP TABLE orders',
-];
+const SAMPLE_QUERIES: Record<string, string[]> = {
+    'Create Users Table': [
+        'CREATE TABLE users (id INT PRIMARY KEY, name TEXT, age INT NOT NULL);',
+    ],
+    'Create Orders Table': [
+        'CREATE TABLE orders (id INT PRIMARY KEY, user_id INT, amount FLOAT, status TEXT);',
+    ],
+    'Insert into Users': [
+        "INSERT INTO users VALUES (1, 'Alice', 30);",
+        "INSERT INTO users VALUES (2, 'Bob', 25);",
+        "INSERT INTO users VALUES (3, 'Charlie', 35);",
+        "INSERT INTO users VALUES (4, 'John', 38);",
+        "INSERT INTO users VALUES (5, 'Doe', 40);",
+        "INSERT INTO users VALUES (6, 'Smith', 45);",
+    ],
+    'Insert into Orders': [
+        "INSERT INTO orders VALUES (1, 1, 150.00, 'paid');",
+        "INSERT INTO orders VALUES (2, 2, 89.99, 'pending');",
+        "INSERT INTO orders VALUES (3, 1, 230.50, 'paid');",
+        "INSERT INTO orders VALUES (4, 2, 120.00, 'paid');",
+        "INSERT INTO orders VALUES (5, 3, 99.99, 'pending');",
+        "INSERT INTO orders VALUES (6, 4, 180.00, 'paid');",
+        "INSERT INTO orders VALUES (7, 1, 210.00, 'paid');",
+        "INSERT INTO orders VALUES (8, 3, 130.00, 'pending');",
+        "INSERT INTO orders VALUES (9, 3, 160.00, 'paid');",
+        "INSERT INTO orders VALUES (10, 4, 190.00, 'pending');",
+        "INSERT INTO orders VALUES (11, 5, 220.00, 'paid');",
+        "INSERT INTO orders VALUES (12, 6, 140.00, 'pending');",
+    ],
+    'Select with Filter & Sort': [
+        'SELECT * FROM users WHERE age > 27 ORDER BY age ASC;',
+    ],
+    'Join: User Order Totals': [
+        'SELECT u.name, SUM(o.amount) AS total FROM orders o JOIN users u ON o.user_id = u.id GROUP BY u.name;',
+    ],
+    'Group By with Having': [
+        'SELECT status, COUNT(*) AS count, AVG(amount) AS avg_amount FROM orders GROUP BY status HAVING COUNT(*) > 1;',
+    ],
+    'Update User Age': [
+        'UPDATE users SET age = 31 WHERE id = 1;',
+    ],
+    'Delete Pending Orders': [
+        "DELETE FROM orders WHERE status = 'pending';",
+    ],
+    'Alter Table: Add Email': [
+        'ALTER TABLE users ADD COLUMN email TEXT;',
+    ],
+    'Drop Orders Table': [
+        'DROP TABLE orders;',
+    ],
+};
 
 export function SQLEditor({ value, onChange, onExecute, isExecuting, error, schema }: Props) {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -209,7 +247,9 @@ export function SQLEditor({ value, onChange, onExecute, isExecuting, error, sche
                     onChange={e => { if (e.target.value) onChange(e.target.value); e.target.value = ''; }}
                 >
                     <option value="">Examples…</option>
-                    {SAMPLE_QUERIES.map((q, i) => <option key={i} value={q}>{q.slice(0, 55)}{q.length > 55 ? '…' : ''}</option>)}
+                    {Object.entries(SAMPLE_QUERIES).map(([label, queries]) => (
+                        <option key={label} value={queries.join('\n')}>{label}</option>
+                    ))}
                 </select>
                 <button className="btn btn-primary" style={{ padding: '5px 16px' }} onClick={onExecute} disabled={isExecuting || !value.trim()} id="execute-btn">
                     {isExecuting ? '⏳ Running…' : '▶ Run'}
