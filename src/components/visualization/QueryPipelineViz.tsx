@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { PipelineStage, StageName, Row } from '@/engine/types';
 
 interface Props {
@@ -250,11 +250,39 @@ export function QueryPipelineViz({ stages, activeStageName, sourceTableNames, sq
     const activeStage = stages.find(s => s.name === activeStageName);
     const isJoinActive = activeStageName === 'JOIN' && !!activeStage;
 
+    const pipelineStripRef = useRef<HTMLDivElement>(null);
+
+    // Redirect vertical wheel events to horizontal scroll on the pipeline strip.
+    // Must use a native non-passive listener because React's synthetic onWheel
+    // is passive by default and cannot call preventDefault().
+    useEffect(() => {
+        const el = pipelineStripRef.current;
+        if (!el) return;
+        const onWheel = (e: WheelEvent) => {
+            if (e.deltaY === 0) return;
+            e.preventDefault();
+            el.scrollLeft += e.deltaY;
+        };
+        el.addEventListener('wheel', onWheel, { passive: false });
+        return () => el.removeEventListener('wheel', onWheel);
+    }, []);
+
     return (
         <div style={{ display: 'flex', height: '100%', overflow: 'hidden', flexDirection: 'column' }}>
 
             {/* ── Top: pipeline flow strip + SQL ──────────────────────── */}
-            <div style={{ display: 'flex', flexShrink: 0, borderBottom: '1px solid var(--border)', overflowX: 'auto', overflowY: 'hidden', minHeight: 0, padding: '10px 14px', gap: 0, alignItems: 'flex-start' }}>
+            <div
+                ref={pipelineStripRef}
+                style={{
+                    display: 'flex', flexShrink: 0,
+                    borderBottom: '1px solid var(--border)',
+                    overflowX: 'auto', overflowY: 'hidden',
+                    minHeight: 0, padding: '10px 14px', gap: 0,
+                    alignItems: 'flex-start',
+                    // Hide the native scrollbar — scrolling is driven by the wheel handler
+                    scrollbarWidth: 'none',
+                }}
+            >
 
                 {/* Source table chips */}
                 <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginRight: 8 }}>
