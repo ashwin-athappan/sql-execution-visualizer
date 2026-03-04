@@ -234,7 +234,7 @@ function AnimatedJoinView({ stage, isActive }: { stage: PipelineStage; isActive:
                     <button
                         onClick={() => setCurrentIndex(0)}
                         disabled={currentIndex === 0}
-                        style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: currentIndex === 0 ? '#475569' : 'white', borderRadius: 4, padding: '2px 8px', cursor: currentIndex === 0 ? 'default' : 'pointer', fontSize: 10 }}
+                        style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: currentIndex === 0 ? 'var(--text-muted)' : 'var(--text-primary)', borderRadius: 4, padding: '2px 8px', cursor: currentIndex === 0 ? 'default' : 'pointer', fontSize: 10 }}
                     >
                         ⏮ Restart
                     </button>
@@ -242,21 +242,21 @@ function AnimatedJoinView({ stage, isActive }: { stage: PipelineStage; isActive:
                     <button
                         onClick={() => { setIsPlaying(false); setCurrentIndex(prev => Math.max(0, prev - 1)); }}
                         disabled={currentIndex === 0}
-                        style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: currentIndex === 0 ? '#475569' : 'white', borderRadius: 4, padding: '2px 8px', cursor: currentIndex === 0 ? 'default' : 'pointer', fontSize: 10 }}
+                        style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: currentIndex === 0 ? 'var(--text-muted)' : 'var(--text-primary)', borderRadius: 4, padding: '2px 8px', cursor: currentIndex === 0 ? 'default' : 'pointer', fontSize: 10 }}
                     >
                         ◀ Prev
                     </button>
                     <button
                         onClick={() => { setIsPlaying(false); setCurrentIndex(prev => Math.min(pairs.length, prev + 1)); }}
                         disabled={isDone}
-                        style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: isDone ? '#475569' : 'white', borderRadius: 4, padding: '2px 8px', cursor: isDone ? 'default' : 'pointer', fontSize: 10 }}
+                        style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: isDone ? 'var(--text-muted)' : 'var(--text-primary)', borderRadius: 4, padding: '2px 8px', cursor: isDone ? 'default' : 'pointer', fontSize: 10 }}
                     >
                         Next ▶
                     </button>
 
                     <button
                         onClick={() => setIsPlaying(!isPlaying)}
-                        style={{ background: isPlaying ? 'rgba(239,68,68,0.2)' : 'var(--bg-elevated)', border: `1px solid ${isPlaying ? '#ef4444' : 'var(--border)'}`, color: 'white', borderRadius: 4, padding: '2px 8px', cursor: 'pointer', fontSize: 10, minWidth: 60 }}
+                        style={{ background: isPlaying ? 'rgba(239,68,68,0.2)' : 'var(--bg-elevated)', border: `1px solid ${isPlaying ? '#ef4444' : 'var(--border)'}`, color: 'var(--text-primary)', borderRadius: 4, padding: '2px 8px', cursor: 'pointer', fontSize: 10, minWidth: 60 }}
                     >
                         {isPlaying ? '⏸ Stop Auto' : '▶ Auto Run'}
                     </button>
@@ -311,13 +311,13 @@ function AnimatedJoinView({ stage, isActive }: { stage: PipelineStage; isActive:
                     {!isDone && currentPair ? (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, width: '100%' }}>
                             <div style={{ fontSize: 20, animation: 'bounce 1s infinite' }}>⚖️</div>
-                            <div style={{ fontSize: 10, color: '#e2e8f0', textAlign: 'center' }}>Evaluating Condition</div>
+                            <div style={{ fontSize: 10, color: 'var(--text-primary)', textAlign: 'center' }}>Evaluating Condition</div>
                             <div style={{ background: 'var(--bg-surface)', border: `1px solid ${currentPair.matched ? '#22c55e' : '#ef4444'}`, borderRadius: 4, padding: '4px 8px', width: '100%', textAlign: 'center', fontSize: 10, fontFamily: 'var(--font-mono)', transition: 'border-color 0.3s' }}>
                                 {currentPair.matched ? '✅ MATCH' : '❌ NO MATCH'}
                             </div>
                         </div>
                     ) : isDone ? (
-                        <div style={{ margin: 'auto', fontSize: 11, color: '#e2e8f0', opacity: 0.6, textAlign: 'center' }}>
+                        <div style={{ margin: 'auto', fontSize: 11, color: 'var(--text-primary)', opacity: 0.6, textAlign: 'center' }}>
                             Evaluation<br />Complete
                         </div>
                     ) : null}
@@ -422,7 +422,7 @@ function AnimatedWhereView({ stage, isActive }: { stage: PipelineStage; isActive
                     <button
                         onClick={() => setCurrentIndex(0)}
                         disabled={currentIndex === 0}
-                        style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: currentIndex === 0 ? '#475569' : 'white', borderRadius: 4, padding: '2px 8px', cursor: currentIndex === 0 ? 'default' : 'pointer', fontSize: 10 }}
+                        style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: currentIndex === 0 ? 'var(--text-muted)' : 'var(--text-primary)', borderRadius: 4, padding: '2px 8px', cursor: currentIndex === 0 ? 'default' : 'pointer', fontSize: 10 }}
                     >
                         ⏮ Restart
                     </button>
@@ -430,21 +430,21 @@ function AnimatedWhereView({ stage, isActive }: { stage: PipelineStage; isActive
                     <button
                         onClick={() => { setIsPlaying(false); setCurrentIndex(prev => Math.max(0, prev - 1)); }}
                         disabled={currentIndex === 0}
-                        style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: currentIndex === 0 ? '#475569' : 'white', borderRadius: 4, padding: '2px 8px', cursor: currentIndex === 0 ? 'default' : 'pointer', fontSize: 10 }}
+                        style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: currentIndex === 0 ? 'var(--text-muted)' : 'var(--text-primary)', borderRadius: 4, padding: '2px 8px', cursor: currentIndex === 0 ? 'default' : 'pointer', fontSize: 10 }}
                     >
                         ◀ Prev
                     </button>
                     <button
                         onClick={() => { setIsPlaying(false); setCurrentIndex(prev => Math.min(evals.length, prev + 1)); }}
                         disabled={isDone}
-                        style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: isDone ? '#475569' : 'white', borderRadius: 4, padding: '2px 8px', cursor: isDone ? 'default' : 'pointer', fontSize: 10 }}
+                        style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: isDone ? 'var(--text-muted)' : 'var(--text-primary)', borderRadius: 4, padding: '2px 8px', cursor: isDone ? 'default' : 'pointer', fontSize: 10 }}
                     >
                         Next ▶
                     </button>
 
                     <button
                         onClick={() => setIsPlaying(!isPlaying)}
-                        style={{ background: isPlaying ? 'rgba(239,68,68,0.2)' : 'var(--bg-elevated)', border: `1px solid ${isPlaying ? '#ef4444' : 'var(--border)'}`, color: 'white', borderRadius: 4, padding: '2px 8px', cursor: 'pointer', fontSize: 10, minWidth: 60 }}
+                        style={{ background: isPlaying ? 'rgba(239,68,68,0.2)' : 'var(--bg-elevated)', border: `1px solid ${isPlaying ? '#ef4444' : 'var(--border)'}`, color: 'var(--text-primary)', borderRadius: 4, padding: '2px 8px', cursor: 'pointer', fontSize: 10, minWidth: 60 }}
                     >
                         {isPlaying ? '⏸ Stop Auto' : '▶ Auto Run'}
                     </button>
@@ -502,7 +502,7 @@ function AnimatedWhereView({ stage, isActive }: { stage: PipelineStage; isActive
                             </div>
                         </div>
                     ) : isDone ? (
-                        <div style={{ margin: 'auto', fontSize: 11, color: '#e2e8f0', opacity: 0.6, textAlign: 'center' }}>
+                        <div style={{ margin: 'auto', fontSize: 11, color: 'var(--text-primary)', opacity: 0.6, textAlign: 'center' }}>
                             Complete
                         </div>
                     ) : null}
@@ -621,7 +621,7 @@ export function QueryPipelineViz({ stages, activeStageName, sourceTableNames, sq
                 <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginRight: 8 }}>
                     {sourceTableNames.map(t => (
                         <div key={t} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                            <span style={{ fontSize: 10, color: '#94a3b8', fontFamily: 'var(--font-mono)' }}>{t}</span>
+                            <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)' }}>{t}</span>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                 {Array.from({ length: 3 }).map((_, ri) => (
                                     <div key={ri} style={{ display: 'flex', gap: 2 }}>
@@ -646,8 +646,8 @@ export function QueryPipelineViz({ stages, activeStageName, sourceTableNames, sq
                                 {/* Arrow connector */}
                                 {idx > 0 && (
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-                                        <div style={{ width: 16, height: 2, background: isActive ? cfg.border : '#334155', transition: 'background 0.3s' }} />
-                                        <div style={{ fontSize: 10, color: isActive ? cfg.border : '#475569', lineHeight: 1 }}>▶</div>
+                                        <div style={{ width: 16, height: 2, background: isActive ? cfg.border : 'var(--border-bright)', transition: 'background 0.3s' }} />
+                                        <div style={{ fontSize: 10, color: isActive ? cfg.border : 'var(--text-muted)', lineHeight: 1 }}>▶</div>
                                     </div>
                                 )}
                                 {/* Stage chip */}
@@ -663,10 +663,10 @@ export function QueryPipelineViz({ stages, activeStageName, sourceTableNames, sq
                                 }}>
                                     <MiniGrid rowCount={stage.rowCount} cols={cols} color={cfg.cellColor} active={isActive} />
                                     <div>
-                                        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', color: isActive ? cfg.border : '#94a3b8', textTransform: 'uppercase', marginBottom: 1 }}>
+                                        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', color: isActive ? cfg.border : 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: 1 }}>
                                             {cfg.icon} {cfg.label}
                                         </div>
-                                        <div style={{ fontSize: 9, color: isActive ? cfg.border : '#475569', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+                                        <div style={{ fontSize: 9, color: isActive ? cfg.border : 'var(--text-muted)', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
                                             {stage.rowCount} row{stage.rowCount !== 1 ? 's' : ''}
                                         </div>
                                     </div>
@@ -689,7 +689,7 @@ export function QueryPipelineViz({ stages, activeStageName, sourceTableNames, sq
                         maxWidth: 280,
                     }}>
                         {sql ? formatSQLAnnotation(sql, stages, activeStageName) : (
-                            <span style={{ color: '#475569', fontStyle: 'italic' }}>Run a SELECT query…</span>
+                            <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>Run a SELECT query…</span>
                         )}
                     </div>
                 </div>
@@ -714,7 +714,7 @@ export function QueryPipelineViz({ stages, activeStageName, sourceTableNames, sq
                                         background: hasStage ? cfg.bg : 'transparent',
                                         border: `1px solid ${hasStage ? cfg.border : 'var(--border)'}`,
                                         opacity: hasStage ? 1 : 0.35,
-                                        fontSize: 10, color: hasStage ? cfg.border : '#475569', fontWeight: 600,
+                                        fontSize: 10, color: hasStage ? cfg.border : 'var(--text-muted)', fontWeight: 600,
                                     }}>
                                         <span>{cfg.icon}</span><span>{cfg.label}</span>
                                     </div>
@@ -774,14 +774,14 @@ function formatSQLAnnotation(sql: string, stages: PipelineStage[], active?: Stag
                     <div key={p.keyword} style={{ display: 'flex', alignItems: 'baseline', gap: 6, padding: '1px 0' }}>
                         <span style={{
                             fontWeight: 700, minWidth: 66, textAlign: 'right',
-                            color: isAct ? cfg?.border ?? '#8b5cf6' : hasStage ? cfg?.border ?? '#6366f1' : '#6b7280',
+                            color: isAct ? cfg?.border ?? '#8b5cf6' : hasStage ? cfg?.border ?? '#6366f1' : 'var(--text-muted)',
                             fontSize: 11,
                             transition: 'color 0.3s',
                             textShadow: isAct ? `0 0 8px ${cfg?.border}` : 'none',
                         }}>
                             {p.keyword}
                         </span>
-                        <span style={{ color: '#94a3b8', fontSize: 11 }}>{p.rest.length > 30 ? p.rest.slice(0, 30) + '…' : p.rest}</span>
+                        <span style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{p.rest.length > 30 ? p.rest.slice(0, 30) + '…' : p.rest}</span>
                     </div>
                 );
             })}

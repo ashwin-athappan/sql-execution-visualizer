@@ -47,7 +47,7 @@ function highlightSQL(sql: string): string {
             if (KEYWORDS.includes(word.toUpperCase())) {
                 result += `<span style="color:#ff7b72;font-weight:600">${word}</span>`;
             } else {
-                result += `<span style="color:#e2e8f0">${word}</span>`;
+                result += `<span class="sql-ident">${word}</span>`;
             }
             continue;
         }

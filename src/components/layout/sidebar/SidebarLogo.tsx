@@ -1,4 +1,5 @@
 import React from 'react';
+import { ThemeSwitcher } from '@/components/controls/ThemeSwitcher';
 
 export function SidebarLogo() {
     return (
@@ -16,6 +17,9 @@ export function SidebarLogo() {
                         SQL Visualizer
                     </div>
                     <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>B+Tree Engine · v2</div>
+                </div>
+                <div style={{ marginLeft: 'auto' }}>
+                    <ThemeSwitcher />
                 </div>
             </div>
         </div>
