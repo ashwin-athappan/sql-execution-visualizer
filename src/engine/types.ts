@@ -46,6 +46,21 @@ export interface TreeSnapshot {
 // ─── Pipeline Stage (for execution flow visualization) ───────────────────────
 export type StageName = 'FROM' | 'JOIN' | 'WHERE' | 'GROUP BY' | 'HAVING' | 'ORDER BY' | 'LIMIT' | 'SELECT';
 
+/** One comparison attempt during a JOIN operation */
+export interface JoinPair {
+  leftRow: Row;
+  rightRow: Row | null;   // null = no match (for LEFT JOIN null row)
+  matched: boolean;       // did the ON condition pass?
+  resultRow?: Row;        // the merged row if matched
+}
+
+/** One row evaluated during a WHERE / HAVING filter */
+export interface WhereEval {
+  row: Row;
+  passed: boolean;        // did the condition evaluate to true?
+  conditionText: string;  // human-readable condition snippet
+}
+
 export interface PipelineStage {
   name: StageName;
   clauseText: string;           // the SQL fragment e.g. "age > 27"
@@ -60,6 +75,10 @@ export interface PipelineStage {
   rightTableName?: string;
   rightRows?: Row[];
   rightColumns?: string[];
+  joinType?: string;            // 'INNER' | 'LEFT' | 'RIGHT' | 'CROSS'
+  joinPairs?: JoinPair[];       // all comparison attempts made during this JOIN
+  // For WHERE / HAVING stages
+  whereEvals?: WhereEval[];     // per-row evaluation results
 }
 
 // ─── Execution Step Types ────────────────────────────────────────────────────

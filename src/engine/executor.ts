@@ -1,6 +1,6 @@
 import { SchemaManager } from './schema';
 import { TableStorage } from './storage';
-import { Row, SqlValue, ExecutionStep, StepType, PipelineStage, StageName } from './types';
+import { Row, SqlValue, ExecutionStep, StepType, PipelineStage, StageName, JoinPair, WhereEval } from './types';
 import {
     ASTNode, InsertStmt, UpdateStmt, DeleteStmt, SelectStmt,
     CreateTableStmt, DropTableStmt, AlterTableStmt,
@@ -43,6 +43,8 @@ function makeJoinPipelineStage(
     rightTableName: string,
     rightRows: Row[],
     rightColumns: string[],
+    joinType: string,
+    joinPairs: JoinPair[],
 ): PipelineStage {
     return {
         name: 'JOIN',
@@ -56,6 +58,8 @@ function makeJoinPipelineStage(
         rightTableName,
         rightRows,
         rightColumns,
+        joinType,
+        joinPairs,
     };
 }
 
@@ -247,8 +251,10 @@ export class QueryExecutor {
                 const rightAlias = join.alias ?? join.table;
 
                 const joined: Row[] = [];
+                const joinPairs: JoinPair[] = [];
+
                 for (const left of rows) {
-                    let matched = false;
+                    let leftMatched = false;
                     for (const right of rightRows) {
                         // Prefix right columns to avoid collision with alias
                         const prefixedRight: Row = {};
@@ -258,18 +264,28 @@ export class QueryExecutor {
                         });
                         const combined = { ...left, ...prefixedRight };
                         const cond = join.on ? this.evalWhere(join.on, combined) : true;
-                        if (cond) { joined.push(combined); matched = true; }
-                        else if (join.type === 'LEFT' && !matched && right === rightRows[rightRows.length - 1]) {
-                            // LEFT JOIN: add left row with nulls for right
-                            const nullRight: Row = {};
-                            rightDef.columns.forEach(c => { nullRight[c.name] = null; nullRight[`${rightAlias}.${c.name}`] = null; });
-                            joined.push({ ...left, ...nullRight });
+                        if (cond) {
+                            joined.push(combined);
+                            leftMatched = true;
+                            joinPairs.push({ leftRow: left, rightRow: right, matched: true, resultRow: combined });
+                        } else {
+                            joinPairs.push({ leftRow: left, rightRow: right, matched: false });
                         }
+                    }
+                    if (join.type === 'LEFT' && !leftMatched) {
+                        // LEFT JOIN: add left row with nulls for right
+                        const nullRight: Row = {};
+                        rightDef.columns.forEach(c => { nullRight[c.name] = null; nullRight[`${rightAlias}.${c.name}`] = null; });
+                        const nullRow = { ...left, ...nullRight };
+                        joined.push(nullRow);
+                        joinPairs.push({ leftRow: left, rightRow: null, matched: true, resultRow: nullRow });
                     }
                     if (join.type === 'LEFT' && rightRows.length === 0) {
                         const nullRight: Row = {};
                         rightDef.columns.forEach(c => { nullRight[c.name] = null; });
-                        joined.push({ ...left, ...nullRight });
+                        const nullRow = { ...left, ...nullRight };
+                        joined.push(nullRow);
+                        joinPairs.push({ leftRow: left, rightRow: null, matched: true, resultRow: nullRow });
                     }
                 }
                 rows = joined;
@@ -288,6 +304,8 @@ export class QueryExecutor {
                     join.table,
                     rightRows,
                     rightColsSnapshot,
+                    join.type,
+                    joinPairs,
                 ));
                 emit({ type: 'TABLE_SCAN', description: `${join.type} JOIN '${join.table}': ${rows.length} rows after join`, tableName: join.table, activeStageName: 'JOIN' });
             }
@@ -297,9 +315,18 @@ export class QueryExecutor {
 
         // ── STAGE 3: WHERE ───────────────────────────────────────────────────
         if (ast.where) {
+            const condText = this.clauseText(ast.where);
+            const allWhereRows = [...rows];
+            const whereEvals: WhereEval[] = allWhereRows.map(r => ({
+                row: r,
+                passed: this.evalWhere(ast.where!, r),
+                conditionText: condText,
+            }));
             const before = rows.length;
             rows = rows.filter(r => this.evalWhere(ast.where!, r));
-            this.pipelineStages.push(makePipelineStage('WHERE', this.clauseText(ast.where), rows, workingCols));
+            const stage = makePipelineStage('WHERE', condText, rows, workingCols);
+            stage.whereEvals = whereEvals;
+            this.pipelineStages.push(stage);
             emit({ type: 'FILTER', description: `WHERE filter: ${before} → ${rows.length} row(s)`, tableName: ast.from, affectedRowKeys: rows.map(r => r[tableDef.primaryKey] as string | number).filter(Boolean), activeStageName: 'WHERE' });
         }
 
@@ -348,10 +375,19 @@ export class QueryExecutor {
 
         // ── STAGE 5: HAVING ──────────────────────────────────────────────────
         if (ast.having) {
+            const havingText = this.clauseText(ast.having);
+            const allHavingRows = [...rows];
+            const havingEvals: WhereEval[] = allHavingRows.map(r => ({
+                row: r,
+                passed: this.evalWhere(ast.having!, r),
+                conditionText: havingText,
+            }));
             const before = rows.length;
             // Re-evaluate aggregate expressions in HAVING by substituting column values
             rows = rows.filter(r => this.evalWhere(ast.having!, r));
-            this.pipelineStages.push(makePipelineStage('HAVING', this.clauseText(ast.having), rows, outputCols));
+            const havingStage = makePipelineStage('HAVING', havingText, rows, outputCols);
+            havingStage.whereEvals = havingEvals;
+            this.pipelineStages.push(havingStage);
             emit({ type: 'HAVING', description: `HAVING filter: ${before} → ${rows.length} row(s)`, tableName: ast.from, activeStageName: 'HAVING' });
         }
 

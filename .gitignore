@@ -3,6 +3,9 @@
 # JetBrains IDEs
 .idea/
 
+# VSCode
+.vscode/
+
 # dependencies
 /node_modules
 /.pnp
@@ -42,3 +45,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# build logs
+tsconfig.tsbuildinfo
