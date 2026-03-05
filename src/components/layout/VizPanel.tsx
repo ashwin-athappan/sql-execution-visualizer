@@ -5,10 +5,11 @@ import { BPlusTreeViz } from '@/components/visualization/BPlusTreeViz';
 import { TableViz } from '@/components/visualization/TableViz';
 import { AnimationControls } from '@/components/controls/AnimationControls';
 import { QueryPipelineViz } from '@/components/visualization/QueryPipelineViz';
+import { TutorialView } from '@/components/visualization/TutorialView';
 import { ExecutionStep, PipelineStage, StageName, TableDef, Row } from '@/engine/types';
 import { TreeSnapshot } from '@/engine/types';
 
-export type VizTabId = 'pipeline' | 'tree' | 'table';
+export type VizTabId = 'pipeline' | 'tree' | 'table' | 'tutorial';
 
 interface VizPanelProps {
     // Tab state
@@ -67,6 +68,9 @@ export function VizPanel({
                 </button>
                 <button className={`chrome-tab ${vizTab === 'table' ? 'active' : ''}`} onClick={() => onVizTabChange('table')}>
                     <span className="chrome-tab-label">📋 Table Data</span>
+                </button>
+                <button className={`chrome-tab ${vizTab === 'tutorial' ? 'active' : ''}`} onClick={() => onVizTabChange('tutorial')}>
+                    <span className="chrome-tab-label">❓ How To Use?</span>
                 </button>
 
                 {/* Table selector dropdown */}
@@ -138,6 +142,9 @@ export function VizPanel({
                         pkColumn={tableData.pkColumn}
                         stepType={currentStep?.type}
                     />
+                )}
+                {vizTab === 'tutorial' && (
+                    <TutorialView />
                 )}
             </div>
 

@@ -243,6 +243,9 @@ export class SelectStrategy implements IExecutorStrategy<SelectStmt> {
             ctx.emit({ type: 'FILTER', description: `LIMIT ${ast.limit}: returning ${rows.length} row(s)`, tableName: ast.from, activeStageName: 'LIMIT' });
         }
 
+        // Determine which stage the pipeline should highlight as the final one
+        const lastStageName = ctx.pipelineStages[ctx.pipelineStages.length - 1]?.name ?? 'SELECT';
+
         ctx.emit({
             type: 'RESULT',
             description: `Query complete. ${rows.length} row(s) returned.`,
@@ -250,7 +253,7 @@ export class SelectStrategy implements IExecutorStrategy<SelectStmt> {
             resultRows: rows,
             resultColumns: finalCols,
             treeSnapshot: storage.getPrimaryTreeSnapshot(),
-            activeStageName: 'SELECT',
+            activeStageName: lastStageName,
             pipelineStages: [...ctx.pipelineStages]
         });
 
