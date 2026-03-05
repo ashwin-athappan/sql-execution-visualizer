@@ -667,7 +667,105 @@ main {
   min-height: 0;
 }
 
-/* ─── Tabs ──────────────────────────────────────────────────────────────── */
+/* ─── Chrome-style Tabs ─────────────────────────────────────────────────── */
+.chrome-tab-bar {
+  display: flex;
+  align-items: flex-end;
+  padding: 0 8px;
+  background: var(--bg-base);
+  position: relative;
+  flex-shrink: 0;
+  min-height: 38px;
+  /* The bottom border spans the full tab bar; active tab will mask it */
+  border-bottom: 1px solid var(--border);
+}
+
+.chrome-tab {
+  position: relative;
+  padding: 7px 18px 7px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 10px 10px 0 0;
+  margin: 0 1px;
+  bottom: -1px;
+  /* overlap the tab-bar border */
+  transition: color 0.2s ease, background 0.2s ease;
+  z-index: 0;
+  font-family: var(--font-sans);
+  white-space: nowrap;
+}
+
+.chrome-tab:hover {
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+}
+
+.chrome-tab.active {
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  z-index: 2;
+  border: 1px solid var(--border);
+  border-bottom: 1px solid var(--bg-surface);
+  /* mask bottom border */
+  font-weight: 600;
+}
+
+/* Curved "feet" on the active tab — the small curves that connect to the bar */
+.chrome-tab.active::before,
+.chrome-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  width: 10px;
+  height: 10px;
+  z-index: 2;
+}
+
+.chrome-tab.active::before {
+  left: -10px;
+  border-bottom-right-radius: 10px;
+  box-shadow: 4px 0 0 0 var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  clip-path: inset(0 0 0 50%);
+}
+
+.chrome-tab.active::after {
+  right: -10px;
+  border-bottom-left-radius: 10px;
+  box-shadow: -4px 0 0 0 var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+  clip-path: inset(0 50% 0 0);
+}
+
+/* Accent indicator on active tab */
+.chrome-tab.active .chrome-tab-label {
+  color: var(--accent-cyan);
+}
+
+.chrome-tab-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Separator between inactive tabs */
+.chrome-tab:not(.active)+.chrome-tab:not(.active)::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: 25%;
+  height: 50%;
+  width: 1px;
+  background: var(--border);
+}
+
+/* ─── Legacy .tabs fallback (keep for non-chrome-tab usage) ────────────── */
 .tabs {
   display: flex;
   align-items: center;

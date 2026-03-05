@@ -57,23 +57,17 @@ export function VizPanel({
     return (
         <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
 
-            {/* ── Tab bar ───────────────────────────────────────────────── */}
-            <div style={{
-                display: 'flex', alignItems: 'center',
-                padding: '5px 10px', borderBottom: '1px solid var(--border)',
-                gap: 8, flexShrink: 0,
-            }}>
-                <div className="tabs">
-                    <button className={`tab ${vizTab === 'pipeline' ? 'active' : ''}`} onClick={() => onVizTabChange('pipeline')}>
-                        🔀 Pipeline Flow
-                    </button>
-                    <button className={`tab ${vizTab === 'tree' ? 'active' : ''}`} onClick={() => onVizTabChange('tree')}>
-                        🌳 B+Tree
-                    </button>
-                    <button className={`tab ${vizTab === 'table' ? 'active' : ''}`} onClick={() => onVizTabChange('table')}>
-                        📋 Table Data
-                    </button>
-                </div>
+            {/* ── Chrome-style tab bar ─────────────────────────────────── */}
+            <div className="chrome-tab-bar">
+                <button className={`chrome-tab ${vizTab === 'pipeline' ? 'active' : ''}`} onClick={() => onVizTabChange('pipeline')}>
+                    <span className="chrome-tab-label">🔀 Pipeline Flow</span>
+                </button>
+                <button className={`chrome-tab ${vizTab === 'tree' ? 'active' : ''}`} onClick={() => onVizTabChange('tree')}>
+                    <span className="chrome-tab-label">🌳 B+Tree</span>
+                </button>
+                <button className={`chrome-tab ${vizTab === 'table' ? 'active' : ''}`} onClick={() => onVizTabChange('table')}>
+                    <span className="chrome-tab-label">📋 Table Data</span>
+                </button>
 
                 {/* Table selector dropdown */}
                 {schemaTables.length > 0 && (
@@ -94,7 +88,7 @@ export function VizPanel({
 
                 {/* Step badge */}
                 {currentStep && (
-                    <div className="badge badge-cyan" style={{ fontSize: 9 }}>
+                    <div className="badge badge-cyan" style={{ fontSize: 9, marginLeft: schemaTables.length > 0 ? 0 : 'auto' }}>
                         Step {currentStepIndex + 1}/{steps.length}
                     </div>
                 )}
