@@ -17,9 +17,9 @@ const STAGE_CONFIG: Record<StageName, { bg: string; border: string; cellColor: s
     'WHERE': { bg: 'rgba(239,68,68,0.12)', border: '#ef4444', cellColor: '#ef4444', label: 'WHERE', icon: '🔍' },
     'GROUP BY': { bg: 'rgba(20,184,166,0.12)', border: '#14b8a6', cellColor: '#14b8a6', label: 'GROUP BY', icon: '📊' },
     'HAVING': { bg: 'rgba(99,102,241,0.12)', border: '#6366f1', cellColor: '#6366f1', label: 'HAVING', icon: '🔧' },
+    'SELECT': { bg: 'rgba(107,114,128,0.12)', border: '#6b7280', cellColor: '#6b7280', label: 'SELECT', icon: '📤' },
     'ORDER BY': { bg: 'rgba(59,130,246,0.12)', border: '#3b82f6', cellColor: '#3b82f6', label: 'ORDER BY', icon: '↕️' },
     'LIMIT': { bg: 'rgba(245,158,11,0.12)', border: '#f59e0b', cellColor: '#f59e0b', label: 'LIMIT', icon: '✂️' },
-    'SELECT': { bg: 'rgba(107,114,128,0.12)', border: '#6b7280', cellColor: '#6b7280', label: 'SELECT', icon: '📤' },
 };
 
 // ── Mini grid (pipeline flow diagram representation) ──────────────────────────
@@ -549,7 +549,7 @@ export function QueryPipelineViz({ stages, activeStageName, sourceTableNames, sq
                 <div className="empty-title">Query Execution Pipeline</div>
                 <div className="empty-sub">
                     Run a SELECT query to see the execution order flow.<br />
-                    FROM → JOIN → WHERE → GROUP BY → HAVING → ORDER BY → LIMIT → SELECT
+                    FROM → JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT
                 </div>
             </div>
         );

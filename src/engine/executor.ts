@@ -391,32 +391,7 @@ export class QueryExecutor {
             emit({ type: 'HAVING', description: `HAVING filter: ${before} → ${rows.length} row(s)`, tableName: ast.from, activeStageName: 'HAVING' });
         }
 
-        // ── STAGE 6: ORDER BY ────────────────────────────────────────────────
-        if (ast.orderBy && ast.orderBy.length > 0) {
-            rows = [...rows].sort((a, b) => {
-                for (const o of ast.orderBy!) {
-                    // Resolve table-qualified refs (e.g. u.name → name) before lookup;
-                    // after GROUP BY the rows only contain bare column names.
-                    const col = resolveCol(o.column, aliasMap);
-                    const aVal = a[col] ?? a[o.column];
-                    const bVal = b[col] ?? b[o.column];
-                    const cmp = aVal == null ? -1 : bVal == null ? 1 : aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
-                    if (cmp !== 0) return o.direction === 'ASC' ? cmp : -cmp;
-                }
-                return 0;
-            });
-            this.pipelineStages.push(makePipelineStage('ORDER BY', `ORDER BY ${ast.orderBy.map(o => `${resolveCol(o.column, aliasMap)} ${o.direction}`).join(', ')}`, rows, outputCols));
-            emit({ type: 'SORT', description: `Sorted by ${ast.orderBy.map(o => `${resolveCol(o.column, aliasMap)} ${o.direction}`).join(', ')}`, tableName: ast.from, activeStageName: 'ORDER BY' });
-        }
-
-        // ── STAGE 7: LIMIT ───────────────────────────────────────────────────
-        if (ast.limit !== undefined) {
-            rows = rows.slice(0, ast.limit);
-            this.pipelineStages.push(makePipelineStage('LIMIT', `LIMIT ${ast.limit}`, rows, outputCols));
-            emit({ type: 'FILTER', description: `LIMIT ${ast.limit}: returning ${rows.length} row(s)`, tableName: ast.from, activeStageName: 'LIMIT' });
-        }
-
-        // ── STAGE 8: SELECT (project) ────────────────────────────────────────
+        // ── STAGE 6: SELECT (project) ────────────────────────────────────────
         let finalCols: string[];
         if (ast.columns.some(c => c.kind === 'star')) {
             finalCols = outputCols.length > 0 ? outputCols : (tableDef.columns.map(c => c.name));
@@ -446,9 +421,38 @@ export class QueryExecutor {
         });
 
         this.pipelineStages.push(makePipelineStage('SELECT', ast.columns.some(c => c.kind === 'star') ? 'SELECT *' : `SELECT ${finalCols.join(', ')}`, projected, finalCols));
-        emit({ type: 'RESULT', description: `Query complete. ${projected.length} row(s) returned.`, tableName: ast.from, resultRows: projected, resultColumns: finalCols, treeSnapshot: storage.getPrimaryTreeSnapshot(), activeStageName: 'SELECT', pipelineStages: [...this.pipelineStages] });
+        emit({ type: 'RESULT', description: `SELECT projects ${finalCols.length} column(s).`, tableName: ast.from, activeStageName: 'SELECT' });
 
-        return { rows: projected, columns: finalCols };
+        rows = projected;
+
+        // ── STAGE 7: ORDER BY ────────────────────────────────────────────────
+        if (ast.orderBy && ast.orderBy.length > 0) {
+            rows = [...rows].sort((a, b) => {
+                for (const o of ast.orderBy!) {
+                    // Resolve table-qualified refs (e.g. u.name → name) before lookup;
+                    // after SELECT the rows use projected column names / aliases.
+                    const col = resolveCol(o.column, aliasMap);
+                    const aVal = a[col] ?? a[o.column];
+                    const bVal = b[col] ?? b[o.column];
+                    const cmp = aVal == null ? -1 : bVal == null ? 1 : aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+                    if (cmp !== 0) return o.direction === 'ASC' ? cmp : -cmp;
+                }
+                return 0;
+            });
+            this.pipelineStages.push(makePipelineStage('ORDER BY', `ORDER BY ${ast.orderBy.map(o => `${resolveCol(o.column, aliasMap)} ${o.direction}`).join(', ')}`, rows, finalCols));
+            emit({ type: 'SORT', description: `Sorted by ${ast.orderBy.map(o => `${resolveCol(o.column, aliasMap)} ${o.direction}`).join(', ')}`, tableName: ast.from, activeStageName: 'ORDER BY' });
+        }
+
+        // ── STAGE 8: LIMIT ───────────────────────────────────────────────────
+        if (ast.limit !== undefined) {
+            rows = rows.slice(0, ast.limit);
+            this.pipelineStages.push(makePipelineStage('LIMIT', `LIMIT ${ast.limit}`, rows, finalCols));
+            emit({ type: 'FILTER', description: `LIMIT ${ast.limit}: returning ${rows.length} row(s)`, tableName: ast.from, activeStageName: 'LIMIT' });
+        }
+
+        emit({ type: 'RESULT', description: `Query complete. ${rows.length} row(s) returned.`, tableName: ast.from, resultRows: rows, resultColumns: finalCols, treeSnapshot: storage.getPrimaryTreeSnapshot(), activeStageName: 'SELECT', pipelineStages: [...this.pipelineStages] });
+
+        return { rows, columns: finalCols };
     }
 
     // ── Expression evaluation ─────────────────────────────────────────────────
