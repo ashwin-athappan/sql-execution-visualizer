@@ -5,6 +5,9 @@ import { ThemeProvider } from "@/context/ThemeContext";
 export const metadata: Metadata = {
   title: "SQL Execution Visualizer",
   description: "Interactive mini-database with animated B+Tree visualization. Write SQL and watch every step execute under the hood.",
+  icons: {
+    icon: "/logo.svg",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
