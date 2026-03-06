@@ -52,9 +52,9 @@ export default function Home() {
 
   // ── Layout ────────────────────────────────────────────────────────────────
   return (
-    <div style={{
+    <div className="app-root" style={{
       display: 'grid',
-      gridTemplateColumns: '220px 1fr',
+      gridTemplateColumns: 'var(--sidebar-w) 1fr',
       height: '100vh',
       overflow: 'hidden',
       background: 'var(--bg-base)',
@@ -70,10 +70,10 @@ export default function Home() {
       />
 
       {/* Main content area */}
-      <div style={{ display: 'grid', gridTemplateRows: '1fr 290px', overflow: 'hidden', minWidth: 0 }}>
+      <div style={{ display: 'grid', gridTemplateRows: '1fr var(--bottom-h)', overflow: 'hidden', minWidth: 0 }}>
 
         {/* Top: visualization + execution plan */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', overflow: 'hidden', minHeight: 0 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr var(--exec-plan-w)', overflow: 'hidden', minHeight: 0 }}>
           <VizPanel
             vizTab={vizTab}
             onVizTabChange={setVizTab}

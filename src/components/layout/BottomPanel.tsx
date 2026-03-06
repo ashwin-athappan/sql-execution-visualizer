@@ -24,7 +24,7 @@ export function BottomPanel({
     return (
         <div style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 360px',
+            gridTemplateColumns: '1fr var(--results-w)',
             borderTop: '1px solid var(--border)',
             minHeight: 0,
         }}>

@@ -43,6 +43,12 @@
   --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.6);
   --glow-cyan: 0 0 20px rgba(0, 212, 255, 0.3);
   --glow-violet: 0 0 20px rgba(139, 92, 246, 0.3);
+
+  /* ── Responsive layout tokens (defaults = large desktop) ──────────── */
+  --sidebar-w: 220px;
+  --exec-plan-w: 280px;
+  --bottom-h: 290px;
+  --results-w: 360px;
 }
 
 /* ─── Light Theme ──────────────────────────────────────────────────────── */
@@ -845,4 +851,86 @@ main {
   stroke-dasharray: 3 3;
   opacity: 0.3;
   fill: none;
+}
+
+/* ─── Responsive layout ──────────────────────────────────────────────── */
+
+/* Large laptops / small desktops (< 1400px) */
+@media (max-width: 1400px) {
+  :root {
+    --sidebar-w: 200px;
+    --exec-plan-w: 250px;
+    --bottom-h: 270px;
+    --results-w: 320px;
+  }
+}
+
+/* Medium laptops (< 1200px) */
+@media (max-width: 1200px) {
+  :root {
+    --sidebar-w: 180px;
+    --exec-plan-w: 220px;
+    --bottom-h: 250px;
+    --results-w: 280px;
+  }
+
+  html,
+  body {
+    font-size: 13px;
+  }
+
+  /* Shrink tab labels slightly to prevent overflow */
+  .chrome-tab {
+    padding: 6px 12px 6px;
+    font-size: 11px;
+  }
+
+  .panel-header {
+    padding: 8px 10px;
+    font-size: 10px;
+  }
+}
+
+/* Small laptops / large tablets (< 1024px) */
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-w: 160px;
+    --exec-plan-w: 190px;
+    --bottom-h: 230px;
+    --results-w: 240px;
+  }
+
+  html,
+  body {
+    font-size: 12px;
+  }
+
+  .chrome-tab {
+    padding: 5px 8px 5px;
+    font-size: 11px;
+  }
+
+  /* Hide emoji icons from tab labels to save space */
+  .chrome-tab-label {
+    gap: 3px;
+  }
+
+  .panel-header {
+    padding: 6px 8px;
+    font-size: 10px;
+    gap: 5px;
+  }
+
+  .panel-header .icon {
+    font-size: 12px;
+  }
+
+  .btn {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  .step-item {
+    padding: 6px 8px;
+  }
 }
