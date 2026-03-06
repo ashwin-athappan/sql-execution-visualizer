@@ -33,6 +33,7 @@ export function Sidebar({
             borderRight: '1px solid var(--border)',
             background: 'var(--bg-surface)',
             overflow: 'hidden',
+            height: '100%',
         }}>
             <SidebarLogo />
             <SidebarSchemaHeader tableCount={schemaTables.length} />

@@ -56,7 +56,7 @@ export function VizPanel({
     treeSnapshot,
 }: VizPanelProps) {
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0, height: '100%' }}>
 
             {/* ── Chrome-style tab bar ─────────────────────────────────── */}
             <div className="chrome-tab-bar">

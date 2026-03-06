@@ -853,6 +853,80 @@ main {
   fill: none;
 }
 
+/* ─── Resize handles ─────────────────────────────────────────────────── */
+
+/* Horizontal handle: sits between left/right panels (vertical bar) */
+.resize-handle-h {
+  width: 5px;
+  cursor: col-resize;
+  position: relative;
+  flex-shrink: 0;
+  z-index: 10;
+  /* Increase the hit area without affecting layout */
+  background: transparent;
+}
+
+.resize-handle-h::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 2px;
+  width: 1px;
+  background: var(--border);
+  transition: background 0.15s, width 0.15s, left 0.15s;
+}
+
+.resize-handle-h:hover::after,
+.resize-handle-h:active::after {
+  background: var(--accent-cyan);
+  width: 3px;
+  left: 1px;
+  box-shadow: 0 0 6px rgba(0, 212, 255, 0.5);
+}
+
+/* Vertical handle: sits between top/bottom panels (horizontal bar) */
+.resize-handle-v {
+  height: 5px;
+  cursor: row-resize;
+  position: relative;
+  flex-shrink: 0;
+  z-index: 10;
+  background: transparent;
+}
+
+.resize-handle-v::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 2px;
+  height: 1px;
+  background: var(--border);
+  transition: background 0.15s, height 0.15s, top 0.15s;
+}
+
+.resize-handle-v:hover::after,
+.resize-handle-v:active::after {
+  background: var(--accent-cyan);
+  height: 3px;
+  top: 1px;
+  box-shadow: 0 0 6px rgba(0, 212, 255, 0.5);
+}
+
+/* Global cursor overrides while dragging */
+body.resize-col,
+body.resize-col * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+body.resize-row,
+body.resize-row * {
+  cursor: row-resize !important;
+  user-select: none !important;
+}
+
 /* ─── Responsive layout ──────────────────────────────────────────────── */
 
 /* Large laptops / small desktops (< 1400px) */

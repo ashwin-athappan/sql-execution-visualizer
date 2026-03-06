@@ -13,10 +13,10 @@ interface ExecutionPlanPanelProps {
 export function ExecutionPlanPanel({ steps, currentStepIndex, onSelectStep }: ExecutionPlanPanelProps) {
     return (
         <div style={{
-            borderLeft: '1px solid var(--border)',
             display: 'flex', flexDirection: 'column',
             overflow: 'hidden',
             background: 'var(--bg-surface)',
+            height: '100%',
         }}>
             <div className="panel-header">
                 <span className="icon">📋</span>

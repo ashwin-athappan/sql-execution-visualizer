@@ -3,6 +3,7 @@
 import React from 'react';
 import { SQLEditor } from '@/components/editor/SQLEditor';
 import { ResultsGrid } from '@/components/results/ResultsGrid';
+import { ResizeHandle } from '@/components/layout/ResizeHandle';
 import { TableDef, Row } from '@/engine/types';
 
 interface BottomPanelProps {
@@ -15,21 +16,24 @@ interface BottomPanelProps {
     resultRows: Row[];
     resultColumns: string[];
     rowsAffected: number;
+    resultsWidth: number;
+    onResultsResize: (e: React.MouseEvent) => void;
 }
 
 export function BottomPanel({
     sql, onSqlChange, onExecute, isExecuting, error,
     schemaTables, resultRows, resultColumns, rowsAffected,
+    resultsWidth, onResultsResize,
 }: BottomPanelProps) {
     return (
         <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr var(--results-w)',
+            display: 'flex',
+            height: '100%',
             borderTop: '1px solid var(--border)',
             minHeight: 0,
         }}>
             {/* SQL Editor */}
-            <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--bg-surface)' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--bg-surface)', minWidth: 0 }}>
                 <SQLEditor
                     value={sql}
                     onChange={onSqlChange}
@@ -40,9 +44,12 @@ export function BottomPanel({
                 />
             </div>
 
+            <ResizeHandle direction="horizontal" onMouseDown={onResultsResize} />
+
             {/* Query Results */}
             <div style={{
-                borderLeft: '1px solid var(--border)',
+                width: resultsWidth,
+                flexShrink: 0,
                 display: 'flex', flexDirection: 'column',
                 overflow: 'hidden',
                 background: 'var(--bg-surface)',
