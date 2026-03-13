@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "/logo.svg",
   },
+  metadataBase: new URL('https://sql-execution-visualizer.vercel.app/')
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
