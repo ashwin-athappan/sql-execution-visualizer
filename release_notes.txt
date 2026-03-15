@@ -1,0 +1,45 @@
+SQL Execution Visualizer - Release Notes
+
+Version: 0.1.0
+Date: 2026-03-15
+
+Initial Release of the SQL Execution Visualizer, an interactive tool for learning and debugging SQL engine internals.
+
+🚀 Core Features:
+----------------
+*   Custom SQL Engine: A hand-crafted SQL parser and executor built from scratch in TypeScript.
+*   Pipeline Flow Visualization: Real-time visualization of the logical execution order of SQL queries.
+*   B+ Tree Index View: Interactive visualization of the internal index structures, showing node splits, merges, and traversals.
+*   Live Table Data: Dynamic table view with real-time highlighting for modified rows.
+*   Professional SQL Editor: Integrated Monaco editor with syntax highlighting and intelligent autocomplete.
+*   Schema Browser: Automatic tracking and visualization of database schema changes.
+
+📚 Supported SQL:
+----------------
+*   DDL (Data Definition):
+    - CREATE TABLE, DROP TABLE, ALTER TABLE (ADD/DROP/RENAME COLUMN)
+    - CREATE INDEX, DROP INDEX
+*   DML (Data Manipulation):
+    - INSERT INTO, UPDATE ... SET, DELETE FROM
+*   Query Features:
+    - SELECT (aliases, columns, *)
+    - JOIN (INNER, LEFT)
+    - WHERE (logic operators, comparisons, LIKE)
+    - GROUP BY with HAVING
+    - ORDER BY (ASC/DESC)
+    - LIMIT
+    - Aggregates: COUNT, SUM, AVG, MIN, MAX
+
+⌨️ Keyboard Shortcuts:
+--------------------
+*   Execute Query: Cmd/Ctrl + Enter
+*   Autocomplete: Tab
+*   Navigate Suggestions: Up/Down arrow keys
+
+🛠️ Tech Stack:
+---------------
+*   Next.js 16 (App Router)
+*   TypeScript
+*   Tailwind CSS
+*   Zustand (State Management)
+*   Monaco Editor

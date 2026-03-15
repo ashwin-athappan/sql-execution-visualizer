@@ -6,8 +6,6 @@
 
 A powerful, interactive web application designed to help developers and students understand how a database engine processes SQL queries step-by-step. Witness the magic of query execution pipelines, B+ Tree index structures, and live data transformations in real-time.
 
-![Preview](/assets/tutorial/images/01-overview.png)
-
 ## ✨ Key Features
 
 - **🔀 Real-time Execution Pipeline**: Visualize the logical execution order (FROM → JOIN → WHERE → ...) and see how data flows through each operator.
