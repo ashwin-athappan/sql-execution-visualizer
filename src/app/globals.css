@@ -2,33 +2,33 @@
 
 /* ─── Design Tokens ────────────────────────────────────────────────────── */
 :root {
-  --bg-base: #080c16;
-  --bg-surface: #0e1425;
-  --bg-elevated: #141b2e;
-  --bg-card: #192030;
-  --bg-hover: #1e2840;
+  --bg-base: #020617;
+  --bg-surface: #0f172a;
+  --bg-elevated: #1e293b;
+  --bg-card: #0f172a;
+  --bg-hover: #1e293b;
 
-  --accent-cyan: #00d4ff;
-  --accent-violet: #8b5cf6;
-  --accent-green: #10b981;
-  --accent-amber: #f59e0b;
-  --accent-red: #ef4444;
-  --accent-pink: #ec4899;
+  --accent-cyan: #38bdf8;
+  --accent-violet: #a78bfa;
+  --accent-green: #34d399;
+  --accent-amber: #fbbf24;
+  --accent-red: #f87171;
+  --accent-pink: #f472b6;
 
-  --text-primary: #e2e8f0;
-  --text-secondary: #94a3b8;
-  --text-muted: #475569;
-  --text-accent: #00d4ff;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-accent: #38bdf8;
 
-  --border: #1e2d47;
-  --border-bright: #2d4065;
-  --border-accent: rgba(0, 212, 255, 0.25);
+  --border: #1e293b;
+  --border-bright: #334155;
+  --border-accent: rgba(56, 189, 248, 0.35);
 
-  --node-default: #1a2744;
-  --node-hover: #1e3058;
-  --node-highlight: rgba(0, 212, 255, 0.18);
-  --node-split: rgba(139, 92, 246, 0.25);
-  --node-delete: rgba(239, 68, 68, 0.20);
+  --node-default: #1e293b;
+  --node-hover: #334155;
+  --node-highlight: rgba(56, 189, 248, 0.25);
+  --node-split: rgba(167, 139, 250, 0.25);
+  --node-delete: rgba(248, 113, 113, 0.25);
 
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
@@ -41,8 +41,8 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.6);
-  --glow-cyan: 0 0 20px rgba(0, 212, 255, 0.3);
-  --glow-violet: 0 0 20px rgba(139, 92, 246, 0.3);
+  --glow-cyan: 0 0 20px rgba(56, 189, 248, 0.3);
+  --glow-violet: 0 0 20px rgba(167, 139, 250, 0.3);
 
   /* ── Responsive layout tokens (defaults = large desktop) ──────────── */
   --sidebar-w: 220px;
@@ -53,38 +53,38 @@
 
 /* ─── Light Theme ──────────────────────────────────────────────────────── */
 [data-theme="light"] {
-  --bg-base: #f5f7fa;
+  --bg-base: #f8fafc;
   --bg-surface: #ffffff;
-  --bg-elevated: #f0f2f5;
+  --bg-elevated: #f1f5f9;
   --bg-card: #ffffff;
-  --bg-hover: #e8ecf1;
+  --bg-hover: #e2e8f0;
 
-  --accent-cyan: #0091b3;
+  --accent-cyan: #0284c7;
   --accent-violet: #7c3aed;
   --accent-green: #059669;
   --accent-amber: #d97706;
   --accent-red: #dc2626;
   --accent-pink: #db2777;
 
-  --text-primary: #1e293b;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  --text-accent: #0091b3;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-accent: #0284c7;
 
-  --border: #e2e8f0;
-  --border-bright: #cbd5e1;
-  --border-accent: rgba(0, 145, 179, 0.30);
+  --border: #cbd5e1;
+  --border-bright: #94a3b8;
+  --border-accent: rgba(2, 132, 199, 0.25);
 
-  --node-default: #f0f4ff;
-  --node-hover: #e0e8ff;
-  --node-highlight: rgba(0, 145, 179, 0.12);
+  --node-default: #ffffff;
+  --node-hover: #f1f5f9;
+  --node-highlight: rgba(2, 132, 199, 0.12);
   --node-split: rgba(124, 58, 237, 0.12);
   --node-delete: rgba(220, 38, 38, 0.10);
 
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.10);
-  --glow-cyan: 0 0 16px rgba(0, 145, 179, 0.20);
+  --glow-cyan: 0 0 16px rgba(2, 132, 199, 0.20);
   --glow-violet: 0 0 16px rgba(124, 58, 237, 0.20);
 }
 
@@ -95,11 +95,11 @@
 }
 
 [data-theme="light"] .btn-primary {
-  background: linear-gradient(135deg, #0091b3 0%, #006a84 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
 }
 
 [data-theme="light"] .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #00a8d4 0%, #0091b3 100%);
+  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
 }
 
 [data-theme="light"] .tabs {
@@ -260,13 +260,13 @@ main {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #00b8db 0%, #0078a8 100%);
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
   color: #fff;
-  box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #00d4ff 0%, #0090c8 100%);
+  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
   box-shadow: var(--glow-cyan);
   transform: translateY(-1px);
 }

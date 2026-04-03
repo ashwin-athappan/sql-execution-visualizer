@@ -241,7 +241,9 @@ export function SQLEditor({ value, onChange, onExecute, isExecuting, error, sche
                 <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', flex: 1 }}>
                     SQL Editor <span style={{ opacity: 0.5 }}>· ⌘↵ to run · Tab for autocomplete</span>
                 </span>
+                <label htmlFor="example-query-selector">Choose an Example</label>
                 <select
+                    id="example-query-selector"
                     style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', padding: '3px 6px', fontSize: 11, fontFamily: 'var(--font-mono)', cursor: 'pointer' }}
                     value=""
                     onChange={e => { if (e.target.value) onChange(e.target.value); e.target.value = ''; }}
