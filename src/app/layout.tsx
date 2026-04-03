@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { Analytics } from "@vercel/analytics/next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const SITE_URL = "https://sql-execution-visualizer.vercel.app";
 const SITE_TITLE = "SQL Execution Visualizer — Interactive B+Tree & Query Engine";
@@ -128,7 +129,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <ThemeProvider>
           {children}
         </ThemeProvider>
+        {/* Analytics Integrations */}
         <Analytics />
+        <GoogleAnalytics gaId="G-8945JB5ZVY" />
       </body>
     </html>
   );
