@@ -9,7 +9,10 @@ export const metadata: Metadata = {
   icons: {
     icon: "/logo.svg",
   },
-  metadataBase: new URL('https://sql-execution-visualizer.vercel.app/')
+  metadataBase: new URL('https://sql-execution-visualizer.vercel.app/'),
+  verification: {
+    google: "gZ2Me5bmjTwgd2BYWtQs48SlNzYpnOdXUvH-zM9aw8M",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
