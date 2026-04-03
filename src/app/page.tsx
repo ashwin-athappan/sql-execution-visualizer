@@ -1,149 +1,82 @@
-'use client';
+import SqlVisualizerApp from "@/components/SqlVisualizerApp";
 
-import React, { useState, useEffect } from 'react';
-import { useDbStore } from '@/store/dbStore';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { VizPanel, VizTabId } from '@/components/layout/VizPanel';
-import { ExecutionPlanPanel } from '@/components/layout/ExecutionPlanPanel';
-import { BottomPanel } from '@/components/layout/BottomPanel';
-import { ResizeHandle } from '@/components/layout/ResizeHandle';
-import { useTableData } from '@/hooks/useTableData';
-import { useSourceTableNames } from '@/hooks/useSourceTableNames';
-import { useResizable } from '@/hooks/useResizable';
-import { Row } from '@/engine/types';
-
+/**
+ * Home page — Server Component shell.
+ *
+ * The <noscript> block and visually-hidden <section> provide meaningful,
+ * crawlable HTML for search engine bots that cannot execute JavaScript.
+ * The interactive app loads on top via the client component.
+ *
+ * This is the SSG rendering strategy: the page is fully rendered at build
+ * time and served as static HTML, giving the fastest TTFB for crawlers.
+ */
 export default function Home() {
-  const {
-    db, steps, currentStepIndex, isPlaying, speed,
-    resultRows, resultColumns, rowsAffected, error,
-    schemaTables, focusedTable, isExecuting,
-    pipelineStages, activeStageName, lastSQL,
-    isRestored,
-    executeQuery, stepForward, stepBackward, play, pause, reset,
-    setSpeed, setFocusedTable, setCurrentStepIndex,
-    initFromStorage, clearAll,
-  } = useDbStore();
-
-  // ── One-time hydration from localStorage ──────────────────────────────────
-  useEffect(() => { initFromStorage(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // ── Local UI state ────────────────────────────────────────────────────────
-  const [sql, setSql] = useState('');
-  const [vizTab, setVizTab] = useState<VizTabId>('pipeline');
-
-  // ── Resizable panel state ─────────────────────────────────────────────────
-  const sidebar = useResizable({ initialSize: 220, minSize: 140, maxSize: 400, direction: 'horizontal' });
-  const execPlan = useResizable({ initialSize: 280, minSize: 160, maxSize: 500, direction: 'horizontal', reverse: true });
-  const bottomPanel = useResizable({ initialSize: 290, minSize: 150, maxSize: 600, direction: 'vertical', reverse: true });
-  const resultsPanel = useResizable({ initialSize: 360, minSize: 180, maxSize: 600, direction: 'horizontal', reverse: true });
-
-  // ── Derived data (custom hooks) ───────────────────────────────────────────
-  const currentStep = steps[currentStepIndex] ?? null;
-  const sourceTableNames = useSourceTableNames(lastSQL, schemaTables);
-  const tableData = useTableData(db, schemaTables, focusedTable, currentStepIndex);
-
-  // Snapshot for B+Tree viz: prefer the step snapshot, fall back to live storage
-  const treeSnapshot = currentStep?.treeSnapshot
-    ?? (focusedTable ? db.getStorages().get(focusedTable)?.getPrimaryTreeSnapshot() : undefined);
-
-  // ── Handlers ──────────────────────────────────────────────────────────────
-  const handleExecute = () => { if (!sql.trim() || isExecuting) return; executeQuery(sql); };
-
-  const handleSelectTable = (name: string) => {
-    setFocusedTable(name);
-    if (vizTab === 'pipeline') setVizTab('table');
-  };
-
-  const handleClearDb = () => {
-    if (confirm('Clear all tables and data? This cannot be undone.')) clearAll();
-  };
-
-  // ── Layout ────────────────────────────────────────────────────────────────
   return (
-    <div className="app-root" style={{
-      display: 'flex',
-      height: '100vh',
-      overflow: 'hidden',
-      background: 'var(--bg-base)',
-    }}>
-      {/* ── Left sidebar ──────────────────────────────────────────────── */}
-      <div style={{ width: sidebar.size, flexShrink: 0, overflow: 'hidden' }}>
-        <Sidebar
-          schemaTables={schemaTables}
-          focusedTable={focusedTable}
-          isRestored={isRestored}
-          tableData={tableData}
-          onSelectTable={handleSelectTable}
-          onClearDb={handleClearDb}
-        />
-      </div>
+    <>
+      {/* ── Server-rendered, crawlable content ────────────────────────────
+           Hidden from sighted users but fully readable by Googlebot.
+           Provides semantic structure, headings, and keyword-rich text
+           for pages where the visible UI is entirely client-rendered.
+      ──────────────────────────────────────────────────────────────────── */}
+      <section
+        aria-label="Page description for search engines"
+        style={{
+          position: "absolute",
+          width: "1px",
+          height: "1px",
+          padding: 0,
+          margin: "-1px",
+          overflow: "hidden",
+          clip: "rect(0, 0, 0, 0)",
+          whiteSpace: "nowrap",
+          borderWidth: 0,
+        }}
+      >
+        <h1>SQL Execution Visualizer — Interactive B+Tree &amp; Query Engine</h1>
+        <p>
+          Write SQL queries and watch every step execute under the hood. This
+          free, browser-based tool provides an interactive mini-database with
+          animated B+Tree visualization, step-by-step execution plans, and
+          live schema browsing.
+        </p>
+        <h2>Features</h2>
+        <ul>
+          <li>Interactive SQL query execution with instant feedback</li>
+          <li>Animated B+Tree index visualization showing inserts, splits, and deletions</li>
+          <li>Step-by-step execution plan walkthrough — see exactly how your query runs</li>
+          <li>Live schema browser with table and column inspection</li>
+          <li>Full in-browser database engine — no server required</li>
+          <li>Dark and light theme support</li>
+        </ul>
+        <h2>How It Works</h2>
+        <p>
+          Type any SQL statement — CREATE TABLE, INSERT, SELECT, UPDATE, or
+          DELETE — into the editor. The visualizer breaks the query into
+          discrete execution steps, animates the underlying B+Tree data
+          structure changes, and displays results in real time.
+        </p>
+        <h2>Who Is This For?</h2>
+        <p>
+          Students learning database internals, developers debugging query
+          performance, educators teaching B+Tree indexing, or anyone curious
+          about what happens when a database processes SQL.
+        </p>
+      </section>
 
-      <ResizeHandle direction="horizontal" onMouseDown={sidebar.onMouseDown} />
-
-      {/* ── Main content area ─────────────────────────────────────────── */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-
-        {/* Top: visualization + execution plan */}
-        <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
-          <div style={{ flex: 1, overflow: 'hidden', minWidth: 0 }}>
-            <VizPanel
-              vizTab={vizTab}
-              onVizTabChange={setVizTab}
-              steps={steps}
-              currentStep={currentStep}
-              currentStepIndex={currentStepIndex}
-              currentSnapshot={currentStep?.treeSnapshot}
-              isPlaying={isPlaying}
-              speed={speed}
-              onPlay={play}
-              onPause={pause}
-              onStepForward={stepForward}
-              onStepBack={stepBackward}
-              onReset={reset}
-              onSpeedChange={setSpeed}
-              pipelineStages={pipelineStages}
-              activeStageName={activeStageName}
-              sourceTableNames={sourceTableNames}
-              lastSQL={lastSQL}
-              tableData={tableData}
-              schemaTables={schemaTables}
-              focusedTable={focusedTable}
-              onFocusedTableChange={setFocusedTable}
-              treeSnapshot={treeSnapshot}
-            />
-          </div>
-
-          <ResizeHandle direction="horizontal" onMouseDown={execPlan.onMouseDown} />
-
-          <div style={{ width: execPlan.size, flexShrink: 0, overflow: 'hidden' }}>
-            <ExecutionPlanPanel
-              steps={steps}
-              currentStepIndex={currentStepIndex}
-              onSelectStep={setCurrentStepIndex}
-            />
-          </div>
+      {/* ── Fallback for users without JavaScript ────────────────────────── */}
+      <noscript>
+        <div style={{ padding: "40px", textAlign: "center", fontFamily: "system-ui" }}>
+          <h1>SQL Execution Visualizer</h1>
+          <p>
+            This application requires JavaScript to run. Please enable
+            JavaScript in your browser settings to use the interactive
+            SQL visualizer.
+          </p>
         </div>
+      </noscript>
 
-        {/* Horizontal resize handle between top and bottom */}
-        <ResizeHandle direction="vertical" onMouseDown={bottomPanel.onMouseDown} />
-
-        {/* Bottom: editor + results */}
-        <div style={{ height: bottomPanel.size, flexShrink: 0, overflow: 'hidden' }}>
-          <BottomPanel
-            sql={sql}
-            onSqlChange={setSql}
-            onExecute={handleExecute}
-            isExecuting={isExecuting}
-            error={error}
-            schemaTables={schemaTables}
-            resultRows={resultRows as Row[]}
-            resultColumns={resultColumns}
-            rowsAffected={rowsAffected}
-            resultsWidth={resultsPanel.size}
-            onResultsResize={resultsPanel.onMouseDown}
-          />
-        </div>
-      </div>
-    </div>
+      {/* ── Interactive client application ────────────────────────────────── */}
+      <SqlVisualizerApp />
+    </>
   );
 }
