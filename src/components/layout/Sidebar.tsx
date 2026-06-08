@@ -15,6 +15,7 @@ interface SidebarProps {
     tableData: { rows: Row[]; columns: string[]; pkColumn: string | undefined };
     onSelectTable: (name: string) => void;
     onClearDb: () => void;
+    onStartTour: () => void;
 }
 
 export function Sidebar({
@@ -24,6 +25,7 @@ export function Sidebar({
     tableData,
     onSelectTable,
     onClearDb,
+    onStartTour,
 }: SidebarProps) {
     const totalIndexes = schemaTables.reduce((a, t) => a + t.indexes.length, 0);
 
@@ -35,7 +37,7 @@ export function Sidebar({
             overflow: 'hidden',
             height: '100%',
         }}>
-            <SidebarLogo />
+            <SidebarLogo onStartTour={onStartTour} />
             <SidebarSchemaHeader tableCount={schemaTables.length} />
 
             <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
@@ -56,6 +58,7 @@ export function Sidebar({
                 indexCount={totalIndexes}
                 isRestored={isRestored}
                 onClearDb={onClearDb}
+                onStartTour={onStartTour}
             />
         </div>
     );

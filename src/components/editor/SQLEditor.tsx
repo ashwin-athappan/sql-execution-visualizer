@@ -235,9 +235,9 @@ export function SQLEditor({ value, onChange, onExecute, isExecuting, error, sche
     }, [completions]);
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+        <div data-tour="editor" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
             {/* Toolbar */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', flexShrink: 0, borderBottom: '1px solid var(--border)' }}>
+            <div data-tour="controls" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', flexShrink: 0, borderBottom: '1px solid var(--border)' }}>
                 <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', flex: 1 }}>
                     SQL Editor <span style={{ opacity: 0.5 }}>· ⌘↵ to run · Tab for autocomplete</span>
                 </span>

@@ -10,6 +10,8 @@ import { ResizeHandle } from '@/components/layout/ResizeHandle';
 import { useTableData } from '@/hooks/useTableData';
 import { useSourceTableNames } from '@/hooks/useSourceTableNames';
 import { useResizable } from '@/hooks/useResizable';
+import { useTour } from '@/hooks/useTour';
+import { TourOverlay } from '@/components/tour/TourOverlay';
 import { Row } from '@/engine/types';
 
 export default function SqlVisualizerApp() {
@@ -26,6 +28,9 @@ export default function SqlVisualizerApp() {
 
   // ── One-time hydration from localStorage ──────────────────────────────────
   useEffect(() => { initFromStorage(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Guided tour ───────────────────────────────────────────────────────────
+  const tour = useTour();
 
   // ── Local UI state ────────────────────────────────────────────────────────
   const [sql, setSql] = useState('');
@@ -75,6 +80,7 @@ export default function SqlVisualizerApp() {
           tableData={tableData}
           onSelectTable={handleSelectTable}
           onClearDb={handleClearDb}
+          onStartTour={tour.startTour}
         />
       </div>
 
@@ -144,6 +150,18 @@ export default function SqlVisualizerApp() {
           />
         </div>
       </div>
+
+      {/* ── Guided Tour Overlay ──────────────────────────────────────── */}
+      {tour.isActive && tour.step && (
+        <TourOverlay
+          step={tour.step}
+          currentStep={tour.currentStep}
+          totalSteps={tour.totalSteps}
+          onNext={tour.next}
+          onPrev={tour.prev}
+          onSkip={tour.skip}
+        />
+      )}
     </div>
   );
 }
