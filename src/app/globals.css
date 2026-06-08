@@ -788,6 +788,7 @@ main {
   font-weight: 500;
   cursor: pointer;
   color: var(--text-secondary);
+  background: transparent;
   transition: all 0.15s ease;
   border: 1px solid transparent;
 }
