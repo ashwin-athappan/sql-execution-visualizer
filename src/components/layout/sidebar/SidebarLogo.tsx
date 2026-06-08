@@ -8,7 +8,11 @@ import githubLightIcon from '@/../public/images/svg/github_white.svg';
 import githubDarkIcon from '@/../public/images/svg/github.svg';
 import {useTheme} from "@/context/ThemeContext";
 
-export function SidebarLogo() {
+interface SidebarLogoProps {
+    onStartTour?: () => void;
+}
+
+export function SidebarLogo({ onStartTour }: SidebarLogoProps) {
 
     const {theme, toggleTheme} = useTheme();
 
@@ -26,7 +30,17 @@ export function SidebarLogo() {
                     </div>
                     <div style={{fontSize: 10, color: 'var(--text-muted)'}}>B+Tree Engine · v2</div>
                 </div>
-                <div style={{marginLeft: 'auto'}}>
+                <div style={{marginLeft: 'auto', display: 'flex', gap: 6, alignItems: 'center'}}>
+                    {onStartTour && (
+                        <button 
+                            className="btn-icon" 
+                            onClick={onStartTour} 
+                            title="Interactive Tutorial"
+                            style={{ width: 26, height: 26, padding: 0, fontSize: 13 }}
+                        >
+                            🎓
+                        </button>
+                    )}
                     <ThemeSwitcher/>
                 </div>
             </div>

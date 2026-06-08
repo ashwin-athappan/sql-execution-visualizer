@@ -37,7 +37,7 @@ export function Sidebar({
             overflow: 'hidden',
             height: '100%',
         }}>
-            <SidebarLogo />
+            <SidebarLogo onStartTour={onStartTour} />
             <SidebarSchemaHeader tableCount={schemaTables.length} />
 
             <div style={{ flex: 1, overflow: 'auto', minHeight: 0 }}>
